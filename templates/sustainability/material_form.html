@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Material - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-cube me-2"></i>
+        Novo Material
+    </h1>
+    <a href="{{ url_for('sustainability.materials') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nome do Material *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="Ex: Cimento Portland" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Categoria</label>
+                            <input type="text" class="form-control" id="category" name="category" 
+                                   placeholder="Ex: Cimento, Aço, Madeira">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="unit" class="form-label">Unidade</label>
+                            <input type="text" class="form-control" id="unit" name="unit" 
+                                   placeholder="Ex: kg, m³, m²">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="carbon_emissions_per_unit" class="form-label">Emissões CO₂/Unidade (kg)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="carbon_emissions_per_unit" name="carbon_emissions_per_unit" 
+                                   placeholder="0.00">
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="cost_per_unit" class="form-label">Custo/Unidade (R$)</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="cost_per_unit" name="cost_per_unit" 
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="supplier_id" class="form-label">Fornecedor</label>
+                        <select class="form-select" id="supplier_id" name="supplier_id">
+                            <option value="">Selecione um fornecedor</option>
+                            {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('sustainability.materials') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

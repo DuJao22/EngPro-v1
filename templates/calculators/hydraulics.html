@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Hidráulica - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tint text-primary"></i> Cálculos Hidráulicos</h1>
+                <a href="{{ url_for('calculators.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Vazão em Tubulações -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-water"></i> Vazão em Tubulações</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="pipe_flow">
+                                <div class="mb-3">
+                                    <label class="form-label">Diâmetro da Tubulação (mm)</label>
+                                    <input type="number" class="form-control" name="diameter" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Velocidade da Água (m/s)</label>
+                                    <input type="number" class="form-control" name="velocity" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perda de Carga -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            <h5><i class="fas fa-chart-line"></i> Perda de Carga</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="head_loss">
+                                <div class="mb-3">
+                                    <label class="form-label">Comprimento da Tubulação (m)</label>
+                                    <input type="number" class="form-control" name="length" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Diâmetro (mm)</label>
+                                    <input type="number" class="form-control" name="diameter" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Vazão (L/s)</label>
+                                    <input type="number" class="form-control" name="flow_rate" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Rugosidade (mm)</label>
+                                    <input type="number" class="form-control" name="roughness" value="0.1" step="0.01">
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if results %}
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-calculator"></i> Resultados Hidráulicos</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if results.pipe_flow %}
+                            <div class="alert alert-primary">
+                                <h6><strong>Vazão em Tubulação</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Diâmetro:</strong> {{ "%.1f"|format(results.pipe_flow.diameter_mm) }} mm</p>
+                                        <p><strong>Velocidade:</strong> {{ "%.2f"|format(results.pipe_flow.velocity) }} m/s</p>
+                                        <p><strong>Área da seção:</strong> {{ "%.6f"|format(results.pipe_flow.area) }} m²</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Vazão:</strong> <span class="text-primary fw-bold">{{ "%.2f"|format(results.pipe_flow.flow_rate_ls) }} L/s</span></p>
+                                        <p><strong>Vazão:</strong> <span class="text-primary fw-bold">{{ "%.2f"|format(results.pipe_flow.flow_rate_m3h) }} m³/h</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if results.head_loss %}
+                            <div class="alert alert-danger">
+                                <h6><strong>Perda de Carga</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Comprimento:</strong> {{ "%.1f"|format(results.head_loss.length) }} m</p>
+                                        <p><strong>Diâmetro:</strong> {{ "%.1f"|format(results.head_loss.diameter_mm) }} mm</p>
+                                        <p><strong>Velocidade:</strong> {{ "%.2f"|format(results.head_loss.velocity) }} m/s</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Perda unitária:</strong> {{ "%.4f"|format(results.head_loss.unit_loss) }} m/m</p>
+                                        <p><strong>Perda total:</strong> <span class="text-danger fw-bold">{{ "%.2f"|format(results.head_loss.total_loss) }} m</span></p>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Fórmula de Hazen-Williams (C=130)</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tabela de Referência -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6><i class="fas fa-table"></i> Velocidades Recomendadas</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Velocidade (m/s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Sucção de bombas</td>
+                                        <td>0,5 - 1,5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Recalque de bombas</td>
+                                        <td>1,5 - 3,0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rede de distribuição</td>
+                                        <td>0,6 - 2,5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ramais prediais</td>
+                                        <td>0,5 - 1,5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6><i class="fas fa-tools"></i> Coeficientes de Rugosidade</h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>Rugosidade (mm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>PVC/PEAD</td>
+                                        <td>0,01 - 0,05</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ferro fundido novo</td>
+                                        <td>0,10 - 0,30</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ferro fundido usado</td>
+                                        <td>1,0 - 3,0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aço galvanizado</td>
+                                        <td>0,15 - 0,20</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-info-circle"></i> Informações Importantes</h6>
+                <ul class="mb-0">
+                    <li>Os cálculos assumem regime permanente e escoamento turbulento</li>
+                    <li>Para sistemas complexos, considere perdas localizadas (conexões, válvulas, etc.)</li>
+                    <li>Consulte as normas NBR 12218 (Projeto de rede de distribuição de água)</li>
+                    <li>Verifique sempre a cavitação em sistemas de bombeamento</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

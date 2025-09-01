@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Calculadoras de Engenharia - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-calculator text-primary"></i> Calculadoras de Engenharia</h1>
+            </div>
+
+            <div class="row">
+                {% for calculator in calculators %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="icon-container me-3">
+                                    <i class="{{ calculator.icon }} fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title">{{ calculator.name }}</h5>
+                                    <p class="card-text text-muted">{{ calculator.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ url_for(calculator.route) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <h5><i class="fas fa-info-circle"></i> Sobre as Calculadoras</h5>
+                <p class="mb-0">
+                    Estas calculadoras foram desenvolvidas para auxiliar engenheiros civis em cálculos essenciais do dia a dia.
+                    Os resultados são aproximados e devem ser validados por um profissional habilitado antes da execução.
+                    As fórmulas seguem normas brasileiras e internacionais amplamente aceitas.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-container {
+    min-width: 60px;
+    text-align: center;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

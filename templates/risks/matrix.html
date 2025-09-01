@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Matriz de Riscos - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-th me-2"></i>
+        Matriz de Riscos
+    </h1>
+    <div>
+        <a href="{{ url_for('risks.index') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-list me-2"></i>
+            Lista de Riscos
+        </a>
+        <a href="{{ url_for('risks.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Novo Risco
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Matriz Probabilidade × Impacto</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered risk-matrix">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle" rowspan="2" style="width: 100px;">
+                            <div><strong>Probabilidade</strong></div>
+                            <div><small>Impacto →</small></div>
+                        </th>
+                        <th class="text-center bg-light" style="width: 200px;">1 - Muito Baixo</th>
+                        <th class="text-center bg-light" style="width: 200px;">2 - Baixo</th>
+                        <th class="text-center bg-light" style="width: 200px;">3 - Médio</th>
+                        <th class="text-center bg-light" style="width: 200px;">4 - Alto</th>
+                        <th class="text-center bg-light" style="width: 200px;">5 - Muito Alto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prob in range(5, 0, -1) %}
+                        <tr>
+                            <td class="text-center align-middle bg-light">
+                                <strong>{{ prob }}</strong><br>
+                                <small>{{ ['Muito Baixa', 'Baixa', 'Média', 'Alta', 'Muito Alta'][prob-1] }}</small>
+                            </td>
+                            {% for imp in range(1, 6) %}
+                                {% set score = prob * imp %}
+                                {% set cell_class = 'table-success' if score < 6 else 'table-warning' if score < 15 else 'table-danger' %}
+                                <td class="{{ cell_class }} align-top" style="height: 120px; vertical-align: top;">
+                                    <div class="text-center mb-2">
+                                        <strong>{{ score }}</strong>
+                                    </div>
+                                    {% if matrix[prob][imp] %}
+                                        {% for risk in matrix[prob][imp] %}
+                                            <div class="mb-1">
+                                                <small class="d-block">
+                                                    <a href="{{ url_for('risks.edit', id=risk.id) }}" class="text-decoration-none text-dark">
+                                                        <strong>{{ risk.title[:20] }}{% if risk.title|length > 20 %}...{% endif %}</strong>
+                                                    </a>
+                                                </small>
+                                                {% if risk.project_name %}
+                                                    <small class="text-muted d-block">{{ risk.project_name[:15] }}{% if risk.project_name|length > 15 %}...{% endif %}</small>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <span class="badge bg-success fs-6 me-2">1-5</span>
+                <strong>Baixo Risco</strong>
+                <br><small class="text-muted">Monitoramento ocasional</small>
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-warning fs-6 me-2">6-14</span>
+                <strong>Médio Risco</strong>
+                <br><small class="text-muted">Plano de mitigação necessário</small>
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-danger fs-6 me-2">15-25</span>
+                <strong>Alto Risco</strong>
+                <br><small class="text-muted">Ação imediata requerida</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.risk-matrix td {
+    min-height: 80px;
+    font-size: 0.875rem;
+}
+.risk-matrix .table-success {
+    background-color: #d1edff !important;
+}
+.risk-matrix .table-warning {
+    background-color: #fff3cd !important;
+}
+.risk-matrix .table-danger {
+    background-color: #f8d7da !important;
+}
+</style>
+{% endblock %}

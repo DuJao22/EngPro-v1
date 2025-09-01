@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Planos de Assinatura{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2><i class="fas fa-star"></i> Planos de Assinatura</h2>
+    
+    {% if trial_days > 0 %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-clock"></i>
+        <strong>Teste Gratuito Ativo:</strong> Você ainda tem {{ trial_days }} dia{{ 's' if trial_days != 1 else '' }} restante{{ 's' if trial_days != 1 else '' }} do seu teste gratuito Pro!
+    </div>
+    {% endif %}
+    
+    {% if is_pro %}
+    <div class="alert alert-success mb-4">
+        <i class="fas fa-check-circle"></i>
+        <strong>Plano Pro Ativo:</strong> Você tem acesso a todas as funcionalidades premium!
+    </div>
+    {% endif %}
+    
+    <div class="row justify-content-center">
+        <!-- Plano Gratuito -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header text-center bg-secondary text-white">
+                    <h4>Plano Gratuito</h4>
+                    <h3 class="mb-0">R$ 0,00</h3>
+                    <small>/mês</small>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Recursos Inclusos:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> 1 projeto ativo</li>
+                        <li><i class="fas fa-check text-success"></i> Gestão básica de tarefas</li>
+                        <li><i class="fas fa-check text-success"></i> Orçamento básico</li>
+                        <li><i class="fas fa-times text-danger"></i> Relatórios avançados</li>
+                        <li><i class="fas fa-times text-danger"></i> Gestão de equipe</li>
+                        <li><i class="fas fa-times text-danger"></i> Integração IoT</li>
+                        <li><i class="fas fa-times text-danger"></i> Análise de sustentabilidade</li>
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    <button class="btn btn-outline-secondary" disabled>Plano Atual</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teste Gratuito / Plano Pro -->
+
+        
+        <!-- Plano Pro -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-primary">
+                <div class="card-header text-center bg-primary text-white">
+                    <h4>Plano Pro</h4>
+                    <h3 class="mb-0">R$ 49,90</h3>
+                    <small>/mês</small>
+                    <div class="badge badge-light mt-2">Mais Popular</div>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Tudo do Teste Gratuito +:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Suporte prioritário</li>
+                        <li><i class="fas fa-check text-success"></i> Backups automáticos</li>
+                        <li><i class="fas fa-check text-success"></i> Exportação de dados</li>
+                        <li><i class="fas fa-check text-success"></i> API access</li>
+                        <li><i class="fas fa-check text-success"></i> Treinamentos exclusivos</li>
+                        <li><i class="fas fa-check text-success"></i> Atualizações prioritárias</li>
+                        <li><i class="fas fa-check text-success"></i> Sem limitações</li>
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    {% if is_pro %}
+                        <button class="btn btn-success" disabled>
+                            <i class="fas fa-check"></i> Plano Ativo
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('subscription.checkout') }}" class="btn btn-primary">
+                            <i class="fas fa-credit-card"></i> Assinar Agora
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Informações Importantes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-calendar-alt"></i> Teste Gratuito</h6>
+                            <p class="text-muted">7 dias completos com acesso a todas as funcionalidades Pro, sem compromisso.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-credit-card"></i> Pagamento Seguro</h6>
+                            <p class="text-muted">Processado pelo Mercado Pago com total segurança e praticidade.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-sync-alt"></i> Renovação Automática</h6>
+                            <p class="text-muted">Assinatura mensal renovada automaticamente. Cancele quando quiser.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

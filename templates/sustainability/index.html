@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Sustentabilidade - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-leaf me-2"></i>
+        Sustentabilidade
+    </h1>
+    <div>
+        <a href="{{ url_for('sustainability.materials') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-cube me-2"></i>
+            Materiais
+        </a>
+        <a href="{{ url_for('sustainability.log_usage') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Registrar Uso
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    {% if project_emissions %}
+        {% for project in project_emissions[:3] %}
+            <div class="col-md-4 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h6 class="card-title">{{ project.project_name }}</h6>
+                        <h4 class="text-success">{{ "{:,.1f}".format(project.total_emissions).replace(',', '.') }} kg CO₂</h4>
+                        <small class="text-muted">Emissões totais</small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Category Emissions Chart -->
+{% if category_emissions %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Emissões por Categoria</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Resumo por Categoria</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Emissões (kg CO₂)</th>
+                                <th>Custo (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in category_emissions %}
+                                <tr>
+                                    <td>{{ category.category }}</td>
+                                    <td>{{ "{:,.1f}".format(category.total_emissions).replace(',', '.') }}</td>
+                                    <td>R$ {{ "{:,.2f}".format(category.total_cost or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Material Usage Logs -->
+{% if material_logs %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Registro de Uso de Materiais</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Projeto</th>
+                            <th>Material</th>
+                            <th>Quantidade</th>
+                            <th>Emissões (kg CO₂)</th>
+                            <th>Custo (R$)</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in material_logs %}
+                            <tr>
+                                <td>{{ log.date_used or log.created_at[:10] }}</td>
+                                <td>
+                                    <a href="{{ url_for('sustainability.project_report', project_id=log.project_id) }}" class="text-decoration-none">
+                                        {{ log.project_name or 'N/A' }}
+                                    </a>
+                                </td>
+                                <td>{{ log.material_name }}</td>
+                                <td>{{ log.quantity }}</td>
+                                <td class="text-danger fw-bold">{{ "{:,.1f}".format(log.total_emissions).replace(',', '.') }}</td>
+                                <td>R$ {{ "{:,.2f}".format(log.total_cost or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>{{ log.notes or '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-leaf fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum registro de sustentabilidade</h3>
+        <p class="text-muted">Comece registrando o uso de materiais para monitorar as emissões.</p>
+        <a href="{{ url_for('sustainability.log_usage') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Primeiro Registro
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+{% if category_emissions %}
+// Category emissions chart
+const ctx = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for category in category_emissions %}'{{ category.category }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for category in category_emissions %}{{ category.total_emissions }}{% if not loop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Segurança - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-shield-alt me-2"></i>
+        Relatório de Segurança
+    </h1>
+    <div>
+        <a href="{{ url_for('reports.export', report_type='incidents') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-download me-2"></i>
+            Exportar
+        </a>
+        <a href="{{ url_for('reports.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    {% for severity in severity_stats %}
+        <div class="col-md-3 mb-3">
+            <div class="card bg-{{ 'danger' if severity.severity == 'high' else 'warning' if severity.severity == 'medium' else 'success' }} text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0">{{ severity.count }}</h4>
+                    <small>{{ severity.severity.title() }} Severity</small>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Monthly Trend Chart -->
+{% if monthly_stats %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">Tendência Mensal de Incidentes</h6>
+    </div>
+    <div class="card-body">
+        <canvas id="monthlyChart" width="400" height="100"></canvas>
+    </div>
+</div>
+{% endif %}
+
+<!-- Status Statistics -->
+{% if status_stats %}
+<div class="row mb-4">
+    {% for status in status_stats %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="text-{{ 'success' if status.status == 'closed' else 'warning' }}">{{ status.count }}</h5>
+                    <small class="text-muted">{{ status.status.title() }}</small>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">Data Início</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" 
+                       value="{{ filters.start_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">Data Fim</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" 
+                       value="{{ filters.end_date or '' }}">
+            </div>
+            <div class="col-md-2">
+                <label for="severity" class="form-label">Severidade</label>
+                <select class="form-select" id="severity" name="severity">
+                    <option value="">Todas</option>
+                    <option value="low" {% if filters.severity == 'low' %}selected{% endif %}>Baixa</option>
+                    <option value="medium" {% if filters.severity == 'medium' %}selected{% endif %}>Média</option>
+                    <option value="high" {% if filters.severity == 'high' %}selected{% endif %}>Alta</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Todos</option>
+                    <option value="open" {% if filters.status == 'open' %}selected{% endif %}>Aberto</option>
+                    <option value="investigating" {% if filters.status == 'investigating' %}selected{% endif %}>Investigando</option>
+                    <option value="closed" {% if filters.status == 'closed' %}selected{% endif %}>Fechado</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if incidents %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Título</th>
+                            <th>Projeto</th>
+                            <th>Severidade</th>
+                            <th>Local</th>
+                            <th>Reportado por</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for incident in incidents %}
+                            <tr>
+                                <td>{{ incident.date_occurred or '-' }}</td>
+                                <td>
+                                    <strong>{{ incident.title }}</strong>
+                                    {% if incident.description %}
+                                        <br><small class="text-muted">{{ incident.description[:50] }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ incident.project_name or 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if incident.severity == 'high' else 'warning' if incident.severity == 'medium' else 'success' }}">
+                                        {{ incident.severity.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ incident.location or '-' }}</td>
+                                <td>{{ incident.reported_by or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if incident.status == 'closed' else 'warning' }}">
+                                        {{ incident.status.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shield-alt fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum incidente encontrado</h3>
+        <p class="text-muted">Tente ajustar os filtros ou reportar um incidente.</p>
+        <a href="{{ url_for('safety.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Reportar Incidente
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+{% if monthly_stats %}
+// Monthly incidents chart
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [{% for stat in monthly_stats %}'{{ stat.month }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Incidentes por Mês',
+            data: [{% for stat in monthly_stats %}{{ stat.count }}{% if not loop.last %},{% endif %}{% endfor %}],
+            borderColor: '#dc3545',
+            backgroundColor: '#dc354520',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

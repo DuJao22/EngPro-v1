@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Uso de Material - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-clipboard-list me-2"></i>
+        Registrar Uso de Material
+    </h1>
+    <a href="{{ url_for('sustainability.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project_id" class="form-label">Projeto</label>
+                            <select class="form-select" id="project_id" name="project_id">
+                                <option value="">Selecione um projeto</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="material_id" class="form-label">Material *</label>
+                            <select class="form-select" id="material_id" name="material_id" required>
+                                <option value="">Selecione um material</option>
+                                {% for material in materials %}
+                                    <option value="{{ material.id }}" 
+                                            data-emissions="{{ material.carbon_emissions_per_unit }}"
+                                            data-cost="{{ material.cost_per_unit }}"
+                                            {% if request.args.get('material_id') == material.id|string %}selected{% endif %}>
+                                        {{ material.name }} ({{ material.carbon_emissions_per_unit }} kg CO₂/{{ material.unit or 'unidade' }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="quantity" class="form-label">Quantidade *</label>
+                            <input type="number" step="0.01" min="0" class="form-control" id="quantity" name="quantity" required>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="total_emissions" class="form-label">Emissões Totais (kg CO₂)</label>
+                            <input type="text" class="form-control" id="total_emissions" readonly>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label for="total_cost" class="form-label">Custo Total (R$)</label>
+                            <input type="text" class="form-control" id="total_cost" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date_used" class="form-label">Data de Uso</label>
+                        <input type="date" class="form-control" id="date_used" name="date_used">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Observações sobre o uso do material..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('sustainability.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const materialSelect = document.getElementById('material_id');
+    const quantityInput = document.getElementById('quantity');
+    const totalEmissionsInput = document.getElementById('total_emissions');
+    const totalCostInput = document.getElementById('total_cost');
+    
+    function calculateTotals() {
+        const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+        const quantity = parseFloat(quantityInput.value) || 0;
+        
+        if (selectedOption && selectedOption.value) {
+            const emissions = parseFloat(selectedOption.getAttribute('data-emissions')) || 0;
+            const cost = parseFloat(selectedOption.getAttribute('data-cost')) || 0;
+            
+            const totalEmissions = quantity * emissions;
+            const totalCost = quantity * cost;
+            
+            totalEmissionsInput.value = totalEmissions.toFixed(2) + ' kg CO₂';
+            totalCostInput.value = 'R$ ' + totalCost.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        } else {
+            totalEmissionsInput.value = '';
+            totalCostInput.value = '';
+        }
+    }
+    
+    materialSelect.addEventListener('change', calculateTotals);
+    quantityInput.addEventListener('input', calculateTotals);
+});
+</script>
+{% endblock %}

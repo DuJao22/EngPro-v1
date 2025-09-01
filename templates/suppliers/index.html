@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Fornecedores - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-truck me-2"></i>
+        Fornecedores
+    </h1>
+    <div>
+        <a href="{{ url_for('suppliers.orders') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Pedidos
+        </a>
+        <a href="{{ url_for('suppliers.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Novo Fornecedor
+        </a>
+    </div>
+</div>
+
+{% if suppliers %}
+    <div class="row">
+        {% for supplier in suppliers %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">{{ supplier.name }}</h5>
+                            {% if supplier.rating > 0 %}
+                                <div class="text-warning">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star{% if i >= supplier.rating %}-o{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if supplier.category %}
+                            <span class="badge bg-secondary mb-2">{{ supplier.category }}</span>
+                        {% endif %}
+                        
+                        <div class="mb-2">
+                            {% if supplier.cnpj_id %}
+                                <small class="text-muted">CNPJ/ID: {{ supplier.cnpj_id }}</small><br>
+                            {% endif %}
+                            {% if supplier.contact_person %}
+                                <small class="text-muted">Contato: {{ supplier.contact_person }}</small><br>
+                            {% endif %}
+                            {% if supplier.email %}
+                                <small class="text-muted">Email: {{ supplier.email }}</small><br>
+                            {% endif %}
+                            {% if supplier.phone %}
+                                <small class="text-muted">Telefone: {{ supplier.phone }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row text-center mt-3">
+                            <div class="col-6">
+                                <small class="text-muted">Pedidos</small>
+                                <div class="fw-bold">{{ supplier.orders_count or 0 }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Total</small>
+                                <div class="fw-bold">R$ {{ "{:,.0f}".format(supplier.total_amount or 0).replace(',', '.') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('suppliers.edit', id=supplier.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('suppliers.new_order') }}?supplier_id={{ supplier.id }}" class="btn btn-outline-success">
+                                <i class="fas fa-shopping-cart"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDelete({{ supplier.id }}, '{{ supplier.name }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-truck fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum fornecedor encontrado</h3>
+        <p class="text-muted">Comece cadastrando seus fornecedores.</p>
+        <a href="{{ url_for('suppliers.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Cadastrar Primeiro Fornecedor
+        </a>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o fornecedor <strong id="supplierName"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDelete(supplierId, supplierName) {
+    document.getElementById('supplierName').textContent = supplierName;
+    document.getElementById('deleteForm').action = '/suppliers/' + supplierId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

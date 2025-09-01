@@ -1,0 +1,36 @@
+📋 INSTRUÇÕES PARA ADICIONAR SUA LOGO
+
+Para adicionar sua logo ao sistema:
+
+1. 📁 LOCALIZAÇÃO:
+   - Coloque sua logo nesta pasta: static/images/
+   - Nome do arquivo: logo.png
+
+2. 📐 ESPECIFICAÇÕES RECOMENDADAS:
+   - Formato: PNG (transparente) ou JPG
+   - Altura: 80-120px (será redimensionada automaticamente)
+   - Largura: Proporcional
+   - Fundo: Preferencialmente transparente (PNG)
+
+3. 🎯 FORMATOS SUPORTADOS:
+   - logo.png (recomendado)
+   - logo.jpg
+   - logo.jpeg
+   - logo.svg
+
+4. 📱 OTIMIZAÇÃO MOBILE:
+   - A logo será automaticamente redimensionada para mobile
+   - Desktop: 40px de altura
+   - Mobile: 32px de altura
+
+5. ⚡ DETECÇÃO AUTOMÁTICA:
+   - O sistema detecta automaticamente quando você adiciona a logo
+   - Se não houver logo, mostra o ícone padrão
+   - A logo substitui automaticamente o ícone quando carregada
+
+6. 🎨 DICAS DE DESIGN:
+   - Use cores que contratem com o fundo azul da navbar
+   - Logo branca ou clara funciona melhor
+   - Evite detalhes muito pequenos (fica ilegível no mobile)
+
+Após adicionar a logo, atualize a página para vê-la aparecer!

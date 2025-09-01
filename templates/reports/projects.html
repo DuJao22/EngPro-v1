@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Projetos - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-project-diagram me-2"></i>
+        Relatório de Projetos
+    </h1>
+    <div>
+        <a href="{{ url_for('reports.export', report_type='projects') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-download me-2"></i>
+            Exportar
+        </a>
+        <a href="{{ url_for('reports.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">Data Início</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" 
+                       value="{{ filters.start_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">Data Fim</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" 
+                       value="{{ filters.end_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Todos</option>
+                    <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Ativo</option>
+                    <option value="completed" {% if filters.status == 'completed' %}selected{% endif %}>Concluído</option>
+                    <option value="on_hold" {% if filters.status == 'on_hold' %}selected{% endif %}>Em Espera</option>
+                    <option value="cancelled" {% if filters.status == 'cancelled' %}selected{% endif %}>Cancelado</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if projects %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Status</th>
+                            <th>Início</th>
+                            <th>Fim</th>
+                            <th>Orçamento</th>
+                            <th>Tarefas</th>
+                            <th>Gasto Real</th>
+                            <th>Incidentes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                            <tr>
+                                <td>
+                                    <strong>{{ project.name }}</strong>
+                                    {% if project.description %}
+                                        <br><small class="text-muted">{{ project.description[:50] }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if project.status == 'active' else 'secondary' }}">
+                                        {{ project.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ project.start_date or '-' }}</td>
+                                <td>{{ project.end_date or '-' }}</td>
+                                <td>R$ {{ "{:,.2f}".format(project.budget or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>{{ project.task_count }}</td>
+                                <td class="fw-bold">R$ {{ "{:,.2f}".format(project.budget_total or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>
+                                    {% if project.incident_count > 0 %}
+                                        <span class="badge bg-warning">{{ project.incident_count }}</span>
+                                    {% else %}
+                                        <span class="text-success">0</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum projeto encontrado</h3>
+        <p class="text-muted">Tente ajustar os filtros ou criar um novo projeto.</p>
+        <a href="{{ url_for('projects.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Novo Projeto
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

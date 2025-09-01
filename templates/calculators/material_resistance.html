@@ -1,0 +1,931 @@
+{% extends "base.html" %}
+
+{% block title %}Fórmulas de Resistência dos Materiais - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-cogs text-primary"></i> Fórmulas de Resistência dos Materiais</h1>
+                <a href="{{ url_for('calculators.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Navegação por categoria -->
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-list"></i> Selecione uma Fórmula</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <!-- Categoria: Estruturas e Resistência -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Estruturas e Resistência</h6>
+                                    <div class="list-group">
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="normal_stress">1. Tensão Normal (σ = F/A)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="deformation">2. Deformação (ε = ΔL/L₀)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="hooke_law">3. Lei de Hooke (σ = E⋅ε)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="bending_moment">4. Momento Fletor (M = F⋅d)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="moment_inertia">5. Inércia da Seção (I = b⋅h³/12)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="bending_stress">6. Tensão de Flexão (σf = M⋅y/I)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="shear_stress">7. Cisalhamento (τ = V/A)</button>
+                                    </div>
+                                </div>
+
+                                <!-- Categoria: Concreto e Argamassas -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Concreto e Argamassas</h6>
+                                    <div class="list-group">
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="concrete_fck">8. Resistência do Concreto (fck)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="mortar_mix">9. Dosagem de Argamassa (1:a:b)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="abrams_law">10. Lei de Abrams</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="concrete_volume">20. Volume de Concreto (V = b⋅h⋅l)</button>
+                                    </div>
+
+                                    <h6 class="text-primary mt-3">Hidráulica e Hidrologia</h6>
+                                    <div class="list-group">
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="flow_rate">11. Vazão (Q = A⋅v)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="continuity_equation">12. Equação da Continuidade</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="bernoulli_equation">13. Equação de Bernoulli</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="reynolds_number">14. Número de Reynolds</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="manning_formula">15. Fórmula de Manning</button>
+                                    </div>
+
+                                    <h6 class="text-primary mt-3">Geotecnia e Fundações</h6>
+                                    <div class="list-group">
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="effective_stress">16. Pressão Efetiva (σ' = σ - u)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="terzaghi_bearing">17. Capacidade de Carga (Terzaghi)</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="elastic_settlement">18. Assentamento Elástico</button>
+                                        <button class="list-group-item list-group-item-action formula-btn" 
+                                                data-formula="specific_weight">19. Peso Específico (γ = P/V)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulários das Fórmulas -->
+                <div class="col-md-12">
+                    <form method="POST" id="calculatorForm" style="display: none;">
+                        <input type="hidden" name="calc_type" id="calcType">
+                        
+                        <!-- 1. Tensão Normal -->
+                        <div class="formula-section" id="normal_stress_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>1. Tensão Normal (σ = F/A)</h5>
+                                    <small class="text-muted">Determina a tensão que um material sofre quando comprimido ou tracionado</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="force" class="form-label">Força (F) - Newtons</label>
+                                                <input type="number" step="0.01" class="form-control" name="force" placeholder="Ex: 10000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="area" class="form-label">Área da Seção (A) - mm²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area" placeholder="Ex: 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Deformação -->
+                        <div class="formula-section" id="deformation_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>2. Deformação (ε = ΔL/L₀)</h5>
+                                    <small class="text-muted">Mede a deformação relativa de um material</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="delta_length" class="form-label">Variação do Comprimento (ΔL) - mm</label>
+                                                <input type="number" step="0.01" class="form-control" name="delta_length" placeholder="Ex: 2.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="initial_length" class="form-label">Comprimento Inicial (L₀) - mm</label>
+                                                <input type="number" step="0.01" class="form-control" name="initial_length" placeholder="Ex: 1000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Lei de Hooke -->
+                        <div class="formula-section" id="hooke_law_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>3. Lei de Hooke (σ = E⋅ε)</h5>
+                                    <small class="text-muted">Relaciona tensão e deformação em materiais elásticos</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="elastic_modulus" class="form-label">Módulo de Elasticidade (E) - GPa</label>
+                                                <input type="number" step="0.01" class="form-control" name="elastic_modulus" placeholder="Ex: 200">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="strain" class="form-label">Deformação (ε) - adimensional</label>
+                                                <input type="number" step="0.000001" class="form-control" name="strain" placeholder="Ex: 0.001">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Momento Fletor -->
+                        <div class="formula-section" id="bending_moment_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>4. Momento Fletor (M = F⋅d)</h5>
+                                    <small class="text-muted">Base para cálculo de flexão em vigas</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="force" class="form-label">Força Aplicada (F) - N</label>
+                                                <input type="number" step="0.01" class="form-control" name="force" placeholder="Ex: 5000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="distance" class="form-label">Distância (d) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="distance" placeholder="Ex: 2.5">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Inércia da Seção -->
+                        <div class="formula-section" id="moment_inertia_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>5. Inércia da Seção (I = b⋅h³/12)</h5>
+                                    <small class="text-muted">Para seção retangular - Mede a resistência da seção à flexão</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="base" class="form-label">Base (b) - cm</label>
+                                                <input type="number" step="0.01" class="form-control" name="base" placeholder="Ex: 20">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="height" class="form-label">Altura (h) - cm</label>
+                                                <input type="number" step="0.01" class="form-control" name="height" placeholder="Ex: 60">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6. Tensão de Flexão -->
+                        <div class="formula-section" id="bending_stress_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>6. Tensão de Flexão (σf = M⋅y/I)</h5>
+                                    <small class="text-muted">Estima a tensão máxima em uma viga solicitada por momento fletor</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="moment" class="form-label">Momento Fletor (M) - N.m</label>
+                                                <input type="number" step="0.01" class="form-control" name="moment" placeholder="Ex: 12500">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="distance_centroid" class="form-label">Distância ao Centroide (y) - cm</label>
+                                                <input type="number" step="0.01" class="form-control" name="distance_centroid" placeholder="Ex: 30">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="moment_inertia" class="form-label">Momento de Inércia (I) - cm⁴</label>
+                                                <input type="number" step="0.01" class="form-control" name="moment_inertia" placeholder="Ex: 36000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. Cisalhamento -->
+                        <div class="formula-section" id="shear_stress_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>7. Cisalhamento (τ = V/A)</h5>
+                                    <small class="text-muted">Importante em análise de vigas e conexões metálicas</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="shear_force" class="form-label">Força Cortante (V) - N</label>
+                                                <input type="number" step="0.01" class="form-control" name="shear_force" placeholder="Ex: 8000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="area" class="form-label">Área da Seção (A) - mm²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area" placeholder="Ex: 1200">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8. Resistência do Concreto -->
+                        <div class="formula-section" id="concrete_fck_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>8. Resistência Característica do Concreto (fck = Fruptura/A)</h5>
+                                    <small class="text-muted">Resistência à compressão axial do concreto</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="rupture_force" class="form-label">Força de Ruptura (Fruptura) - N</label>
+                                                <input type="number" step="0.01" class="form-control" name="rupture_force" placeholder="Ex: 625000">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="area" class="form-label">Área do Corpo de Prova (A) - cm²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area" placeholder="Ex: 200">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 9. Dosagem de Argamassa -->
+                        <div class="formula-section" id="mortar_mix_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>9. Dosagem de Argamassa (Traço 1:a:b)</h5>
+                                    <small class="text-muted">Relação usada para calcular proporção de materiais</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="cement_bags" class="form-label">Cimento (sacos de 50kg)</label>
+                                                <input type="number" step="0.1" class="form-control" name="cement_bags" value="1" placeholder="Ex: 1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="sand_ratio" class="form-label">Proporção de Areia (a)</label>
+                                                <input type="number" step="0.1" class="form-control" name="sand_ratio" value="3" placeholder="Ex: 3">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="aggregate_ratio" class="form-label">Proporção de Agregado (b) - Opcional</label>
+                                                <input type="number" step="0.1" class="form-control" name="aggregate_ratio" placeholder="Ex: 0 (para argamassa)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 10. Lei de Abrams -->
+                        <div class="formula-section" id="abrams_law_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>10. Lei de Abrams (fc = K⋅(a/c)^-n)</h5>
+                                    <small class="text-muted">Relação água/cimento influencia diretamente a resistência do concreto</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="k_constant" class="form-label">Constante K</label>
+                                                <input type="number" step="0.1" class="form-control" name="k_constant" value="200" placeholder="Ex: 200">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="water_cement_ratio" class="form-label">Relação Água/Cimento (a/c)</label>
+                                                <input type="number" step="0.01" class="form-control" name="water_cement_ratio" placeholder="Ex: 0.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="n_exponent" class="form-label">Expoente n</label>
+                                                <input type="number" step="0.1" class="form-control" name="n_exponent" value="2" placeholder="Ex: 2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 11. Vazão -->
+                        <div class="formula-section" id="flow_rate_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>11. Vazão (Q = A⋅v)</h5>
+                                    <small class="text-muted">Muito usada em drenagem e abastecimento de água</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="area" class="form-label">Área da Seção do Conduto (A) - m²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area" placeholder="Ex: 0.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="velocity" class="form-label">Velocidade da Água (v) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity" placeholder="Ex: 2.0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 12. Equação da Continuidade -->
+                        <div class="formula-section" id="continuity_equation_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>12. Equação da Continuidade (A₁⋅v₁ = A₂⋅v₂)</h5>
+                                    <small class="text-muted">Base de análise de escoamentos em tubulações. Deixe um campo em branco para calcular</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="area1" class="form-label">Área 1 (A₁) - m²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area1" placeholder="Ex: 0.8">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="velocity1" class="form-label">Velocidade 1 (v₁) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity1" placeholder="Ex: 1.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="area2" class="form-label">Área 2 (A₂) - m²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area2" placeholder="Ex: 0.4">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="velocity2" class="form-label">Velocidade 2 (v₂) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity2" placeholder="Deixe vazio para calcular">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 13. Equação de Bernoulli -->
+                        <div class="formula-section" id="bernoulli_equation_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>13. Equação de Bernoulli (p/γ + v²/2g + z = constante)</h5>
+                                    <small class="text-muted">Relaciona pressão, velocidade e altura de fluido. Fundamental para bombeamento e hidráulica</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Ponto 1</h6>
+                                            <div class="mb-3">
+                                                <label for="pressure1" class="form-label">Pressão (p₁) - Pa</label>
+                                                <input type="number" step="0.01" class="form-control" name="pressure1" placeholder="Ex: 101325">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="velocity1" class="form-label">Velocidade (v₁) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity1" placeholder="Ex: 2.0">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="elevation1" class="form-label">Elevação (z₁) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="elevation1" placeholder="Ex: 10">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Ponto 2</h6>
+                                            <div class="mb-3">
+                                                <label for="pressure2" class="form-label">Pressão (p₂) - Pa</label>
+                                                <input type="number" step="0.01" class="form-control" name="pressure2" placeholder="Ex: 98000">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="velocity2" class="form-label">Velocidade (v₂) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity2" placeholder="Ex: 3.0">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="elevation2" class="form-label">Elevação (z₂) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="elevation2" placeholder="Ex: 15">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label for="specific_weight" class="form-label">Peso Específico do Fluido (γ) - N/m³</label>
+                                                <input type="number" step="0.01" class="form-control" name="specific_weight" value="9810" placeholder="9810 (água)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 14. Número de Reynolds -->
+                        <div class="formula-section" id="reynolds_number_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>14. Número de Reynolds (Re = ρ⋅v⋅D/μ)</h5>
+                                    <small class="text-muted">Define se o escoamento é laminar ou turbulento</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="density" class="form-label">Densidade (ρ) - kg/m³</label>
+                                                <input type="number" step="0.01" class="form-control" name="density" value="1000" placeholder="1000 (água)">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="velocity" class="form-label">Velocidade (v) - m/s</label>
+                                                <input type="number" step="0.01" class="form-control" name="velocity" placeholder="Ex: 1.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="diameter" class="form-label">Diâmetro (D) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="diameter" placeholder="Ex: 0.1">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="dynamic_viscosity" class="form-label">Viscosidade Dinâmica (μ) - Pa.s</label>
+                                                <input type="number" step="0.000001" class="form-control" name="dynamic_viscosity" value="0.001" placeholder="0.001 (água)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 15. Fórmula de Manning -->
+                        <div class="formula-section" id="manning_formula_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>15. Fórmula de Manning (Q = 1/n⋅A⋅R^(2/3)⋅S^(1/2))</h5>
+                                    <small class="text-muted">Muito usada em drenagem pluvial</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="area" class="form-label">Área da Seção (A) - m²</label>
+                                                <input type="number" step="0.01" class="form-control" name="area" placeholder="Ex: 2.5">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="wetted_perimeter" class="form-label">Perímetro Molhado (P) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="wetted_perimeter" placeholder="Ex: 4.0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="slope" class="form-label">Declividade (S) - m/m</label>
+                                                <input type="number" step="0.0001" class="form-control" name="slope" placeholder="Ex: 0.001">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="manning_n" class="form-label">Coeficiente de Rugosidade (n)</label>
+                                                <input type="number" step="0.001" class="form-control" name="manning_n" value="0.013" placeholder="0.013 (concreto)">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 16. Pressão Efetiva -->
+                        <div class="formula-section" id="effective_stress_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>16. Pressão Efetiva (σ' = σ - u)</h5>
+                                    <small class="text-muted">Essencial em análise de solos saturados</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="total_stress" class="form-label">Tensão Total (σ) - kPa</label>
+                                                <input type="number" step="0.01" class="form-control" name="total_stress" placeholder="Ex: 100">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="pore_pressure" class="form-label">Pressão dos Poros (u) - kPa</label>
+                                                <input type="number" step="0.01" class="form-control" name="pore_pressure" placeholder="Ex: 30">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 17. Capacidade de Carga Terzaghi -->
+                        <div class="formula-section" id="terzaghi_bearing_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>17. Capacidade de Carga (Terzaghi): q_ult = c⋅Nc + γ⋅Df⋅Nq + 0.5⋅γ⋅B⋅Nγ</h5>
+                                    <small class="text-muted">Estima a carga que o solo suporta antes da ruptura</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="cohesion" class="form-label">Coesão (c) - kPa</label>
+                                                <input type="number" step="0.01" class="form-control" name="cohesion" placeholder="Ex: 10">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="unit_weight" class="form-label">Peso Específico (γ) - kN/m³</label>
+                                                <input type="number" step="0.1" class="form-control" name="unit_weight" value="18" placeholder="Ex: 18">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="depth" class="form-label">Profundidade (Df) - m</label>
+                                                <input type="number" step="0.1" class="form-control" name="depth" placeholder="Ex: 1.5">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="width" class="form-label">Largura da Fundação (B) - m</label>
+                                                <input type="number" step="0.1" class="form-control" name="width" placeholder="Ex: 2.0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="friction_angle" class="form-label">Ângulo de Atrito (φ) - graus</label>
+                                                <input type="number" step="0.1" class="form-control" name="friction_angle" placeholder="Ex: 30">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 18. Assentamento Elástico -->
+                        <div class="formula-section" id="elastic_settlement_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>18. Assentamento Elástico (S = q⋅B(1-ν²)/E)</h5>
+                                    <small class="text-muted">Cálculo de recalque em fundações rasas</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="bearing_pressure" class="form-label">Pressão de Apoio (q) - kPa</label>
+                                                <input type="number" step="0.01" class="form-control" name="bearing_pressure" placeholder="Ex: 150">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="foundation_width" class="form-label">Largura da Fundação (B) - m</label>
+                                                <input type="number" step="0.1" class="form-control" name="foundation_width" placeholder="Ex: 2.0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="poisson_ratio" class="form-label">Coeficiente de Poisson (ν)</label>
+                                                <input type="number" step="0.01" class="form-control" name="poisson_ratio" value="0.3" placeholder="Ex: 0.3">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="elastic_modulus" class="form-label">Módulo de Elasticidade (E) - kPa</label>
+                                                <input type="number" step="100" class="form-control" name="elastic_modulus" placeholder="Ex: 20000">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 19. Peso Específico -->
+                        <div class="formula-section" id="specific_weight_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>19. Peso Específico (γ = P/V)</h5>
+                                    <small class="text-muted">Usado em solos, concretos e agregados</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="weight" class="form-label">Peso (P) - N</label>
+                                                <input type="number" step="0.01" class="form-control" name="weight" placeholder="Ex: 2400">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="volume" class="form-label">Volume (V) - m³</label>
+                                                <input type="number" step="0.01" class="form-control" name="volume" placeholder="Ex: 0.1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 20. Volume de Concreto -->
+                        <div class="formula-section" id="concrete_volume_section" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>20. Volume de Concreto (V = b⋅h⋅l)</h5>
+                                    <small class="text-muted">Fórmula básica para calcular volume de vigas, lajes e blocos</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="base" class="form-label">Base (b) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="base" placeholder="Ex: 0.2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="height" class="form-label">Altura (h) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="height" placeholder="Ex: 0.6">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="length" class="form-label">Comprimento (l) - m</label>
+                                                <input type="number" step="0.01" class="form-control" name="length" placeholder="Ex: 5.0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calculator"></i> Calcular
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Resultados -->
+                {% if results %}
+                <div class="col-md-12 mt-4">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-check-circle"></i> Resultados</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for calc_name, result in results.items() %}
+                                <div class="result-section">
+                                    {% if calc_name == 'normal_stress' %}
+                                        <h6>Tensão Normal</h6>
+                                        <p><strong>Tensão:</strong> {{ "%.2f"|format(result.normal_stress_mpa) }} MPa</p>
+                                        <p><strong>Força:</strong> {{ result.force }} N</p>
+                                        <p><strong>Área:</strong> {{ result.area_mm2 }} mm²</p>
+                                    {% elif calc_name == 'deformation' %}
+                                        <h6>Deformação</h6>
+                                        <p><strong>Deformação:</strong> {{ "%.6f"|format(result.deformation) }} ({{ "%.4f"|format(result.deformation_percent) }}%)</p>
+                                        <p><strong>Variação:</strong> {{ result.delta_length }} mm</p>
+                                        <p><strong>Comprimento inicial:</strong> {{ result.initial_length }} mm</p>
+                                    {% elif calc_name == 'hooke_law' %}
+                                        <h6>Lei de Hooke</h6>
+                                        <p><strong>Tensão:</strong> {{ "%.2f"|format(result.stress_mpa) }} MPa</p>
+                                        <p><strong>Módulo de elasticidade:</strong> {{ result.elastic_modulus_gpa }} GPa</p>
+                                        <p><strong>Deformação:</strong> {{ result.strain }}</p>
+                                    {% elif calc_name == 'bending_moment' %}
+                                        <h6>Momento Fletor</h6>
+                                        <p><strong>Momento:</strong> {{ "%.2f"|format(result.bending_moment_knm) }} kN.m</p>
+                                        <p><strong>Força:</strong> {{ result.force }} N</p>
+                                        <p><strong>Distância:</strong> {{ result.distance }} m</p>
+                                    {% elif calc_name == 'moment_inertia' %}
+                                        <h6>Momento de Inércia</h6>
+                                        <p><strong>Inércia:</strong> {{ "%.2f"|format(result.moment_inertia_cm4) }} cm⁴</p>
+                                        <p><strong>Base:</strong> {{ result.base }} cm</p>
+                                        <p><strong>Altura:</strong> {{ result.height }} cm</p>
+                                    {% elif calc_name == 'bending_stress' %}
+                                        <h6>Tensão de Flexão</h6>
+                                        <p><strong>Tensão de flexão:</strong> {{ "%.2f"|format(result.bending_stress_mpa) }} MPa</p>
+                                        <p><strong>Momento:</strong> {{ result.moment }} N.m</p>
+                                        <p><strong>Distância ao centroide:</strong> {{ result.distance_centroid }} cm</p>
+                                    {% elif calc_name == 'shear_stress' %}
+                                        <h6>Tensão de Cisalhamento</h6>
+                                        <p><strong>Tensão de cisalhamento:</strong> {{ "%.2f"|format(result.shear_stress_mpa) }} MPa</p>
+                                        <p><strong>Força cortante:</strong> {{ result.shear_force }} N</p>
+                                        <p><strong>Área:</strong> {{ result.area }} mm²</p>
+                                    {% elif calc_name == 'concrete_fck' %}
+                                        <h6>Resistência do Concreto (fck)</h6>
+                                        <p><strong>fck:</strong> {{ "%.2f"|format(result.fck_mpa) }} MPa</p>
+                                        <p><strong>Força de ruptura:</strong> {{ result.rupture_force }} N</p>
+                                        <p><strong>Área:</strong> {{ result.area_cm2 }} cm²</p>
+                                    {% elif calc_name == 'flow_rate' %}
+                                        <h6>Vazão</h6>
+                                        <p><strong>Vazão:</strong> {{ "%.2f"|format(result.flow_rate_ls) }} L/s ({{ "%.2f"|format(result.flow_rate_m3h) }} m³/h)</p>
+                                        <p><strong>Área:</strong> {{ result.area }} m²</p>
+                                        <p><strong>Velocidade:</strong> {{ result.velocity }} m/s</p>
+                                    {% elif calc_name == 'mortar_mix' %}
+                                        <h6>Dosagem de Argamassa</h6>
+                                        <p><strong>Traço:</strong> 1:{{ result.sand_ratio }}{% if result.aggregate_ratio %}:{{ result.aggregate_ratio }}{% endif %}</p>
+                                        <p><strong>Cimento:</strong> {{ result.cement_kg }} kg ({{ result.cement_bags }} sacos)</p>
+                                        <p><strong>Areia:</strong> {{ result.sand_kg }} kg</p>
+                                        {% if result.aggregate_kg > 0 %}<p><strong>Agregado:</strong> {{ result.aggregate_kg }} kg</p>{% endif %}
+                                    {% elif calc_name == 'abrams_law' %}
+                                        <h6>Lei de Abrams</h6>
+                                        <p><strong>Resistência do Concreto:</strong> {{ "%.2f"|format(result.concrete_strength_mpa) }} MPa</p>
+                                        <p><strong>Relação a/c:</strong> {{ result.water_cement_ratio }}</p>
+                                        <p><strong>Constante K:</strong> {{ result.k_constant }}</p>
+                                    {% elif calc_name == 'continuity_equation' %}
+                                        <h6>Equação da Continuidade</h6>
+                                        <p><strong>Seção 1:</strong> A = {{ result.area1 }} m², v = {{ result.velocity1 }} m/s, Q = {{ "%.3f"|format(result.flow_rate1) }} m³/s</p>
+                                        <p><strong>Seção 2:</strong> A = {{ result.area2 }} m², v = {{ result.velocity2 }} m/s, Q = {{ "%.3f"|format(result.flow_rate2) }} m³/s</p>
+                                    {% elif calc_name == 'bernoulli_equation' %}
+                                        <h6>Equação de Bernoulli</h6>
+                                        <p><strong>Carga total ponto 1:</strong> {{ "%.2f"|format(result.total_head1) }} m</p>
+                                        <p><strong>Carga total ponto 2:</strong> {{ "%.2f"|format(result.total_head2) }} m</p>
+                                        <p><strong>Diferença de carga:</strong> {{ "%.2f"|format(result.head_difference) }} m</p>
+                                    {% elif calc_name == 'reynolds_number' %}
+                                        <h6>Número de Reynolds</h6>
+                                        <p><strong>Reynolds:</strong> {{ "%.0f"|format(result.reynolds) }}</p>
+                                        <p><strong>Tipo de escoamento:</strong> {{ result.flow_type }}</p>
+                                        <p><strong>Velocidade:</strong> {{ result.velocity }} m/s</p>
+                                        <p><strong>Diâmetro:</strong> {{ result.diameter }} m</p>
+                                    {% elif calc_name == 'manning_formula' %}
+                                        <h6>Fórmula de Manning</h6>
+                                        <p><strong>Vazão:</strong> {{ "%.3f"|format(result.flow_rate) }} m³/s</p>
+                                        <p><strong>Raio hidráulico:</strong> {{ "%.3f"|format(result.hydraulic_radius) }} m</p>
+                                        <p><strong>Área:</strong> {{ result.area }} m²</p>
+                                        <p><strong>Declividade:</strong> {{ result.slope }} m/m</p>
+                                    {% elif calc_name == 'effective_stress' %}
+                                        <h6>Pressão Efetiva</h6>
+                                        <p><strong>Tensão efetiva:</strong> {{ "%.2f"|format(result.effective_stress) }} kPa</p>
+                                        <p><strong>Tensão total:</strong> {{ result.total_stress }} kPa</p>
+                                        <p><strong>Pressão dos poros:</strong> {{ result.pore_pressure }} kPa</p>
+                                    {% elif calc_name == 'terzaghi_bearing' %}
+                                        <h6>Capacidade de Carga (Terzaghi)</h6>
+                                        <p><strong>Capacidade última:</strong> {{ "%.2f"|format(result.ultimate_bearing_capacity) }} kPa</p>
+                                        <p><strong>Fatores:</strong> Nc = {{ "%.2f"|format(result.Nc) }}, Nq = {{ "%.2f"|format(result.Nq) }}, Nγ = {{ "%.2f"|format(result.Ng) }}</p>
+                                        <p><strong>Ângulo de atrito:</strong> {{ result.friction_angle }}°</p>
+                                    {% elif calc_name == 'elastic_settlement' %}
+                                        <h6>Assentamento Elástico</h6>
+                                        <p><strong>Recalque:</strong> {{ "%.2f"|format(result.settlement_mm) }} mm ({{ "%.4f"|format(result.settlement_m) }} m)</p>
+                                        <p><strong>Pressão de apoio:</strong> {{ result.bearing_pressure }} kPa</p>
+                                        <p><strong>Largura da fundação:</strong> {{ result.foundation_width }} m</p>
+                                    {% elif calc_name == 'specific_weight' %}
+                                        <h6>Peso Específico</h6>
+                                        <p><strong>Peso específico:</strong> {{ "%.2f"|format(result.specific_weight_knm3) }} kN/m³ ({{ "%.0f"|format(result.specific_weight_nm3) }} N/m³)</p>
+                                        <p><strong>Peso:</strong> {{ result.weight }} N</p>
+                                        <p><strong>Volume:</strong> {{ result.volume }} m³</p>
+                                    {% elif calc_name == 'concrete_volume' %}
+                                        <h6>Volume de Concreto</h6>
+                                        <p><strong>Volume:</strong> {{ "%.3f"|format(result.volume_m3) }} m³ ({{ "%.0f"|format(result.volume_liters) }} litros)</p>
+                                        <p><strong>Dimensões:</strong> {{ result.base }} × {{ result.height }} × {{ result.length }} m</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formulaBtns = document.querySelectorAll('.formula-btn');
+    const calculatorForm = document.getElementById('calculatorForm');
+    const calcTypeInput = document.getElementById('calcType');
+    const formulaSections = document.querySelectorAll('.formula-section');
+    
+    formulaBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const formula = this.dataset.formula;
+            
+            // Remover classe ativa de todos os botões
+            formulaBtns.forEach(b => b.classList.remove('active'));
+            // Adicionar classe ativa ao botão clicado
+            this.classList.add('active');
+            
+            // Esconder todas as seções
+            formulaSections.forEach(section => section.style.display = 'none');
+            
+            // Mostrar a seção correspondente
+            const targetSection = document.getElementById(formula + '_section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                calculatorForm.style.display = 'block';
+                calcTypeInput.value = formula;
+                
+                // Scroll para o formulário
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.formula-btn {
+    border: none;
+    margin-bottom: 5px;
+}
+
+.formula-btn:hover {
+    background-color: #e9ecef;
+}
+
+.formula-btn.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.result-section {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #28a745;
+    background-color: #f8f9fa;
+}
+
+.card-header {
+    position: relative;
+}
+
+.card-header small {
+    display: block;
+    margin-top: 5px;
+}
+</style>
+
+{% endblock %}

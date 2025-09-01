@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Gráficos de Medições - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-chart-line me-2"></i>
+        Gráficos de Medições
+    </h1>
+    <div>
+        <a href="{{ url_for('field.index') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-list me-2"></i>
+            Lista de Medições
+        </a>
+        <a href="{{ url_for('field.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Nova Medição
+        </a>
+    </div>
+</div>
+
+{% if chart_data %}
+    <div class="row">
+        {% for measurement_type, data in chart_data.items() %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">{{ measurement_type.title() }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chart-{{ loop.index }}" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum dado para exibir</h3>
+        <p class="text-muted">Registre algumas medições para visualizar os gráficos.</p>
+        <a href="{{ url_for('field.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Registrar Medição
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+{% if chart_data %}
+const chartData = {{ chart_data | safe }};
+const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+let colorIndex = 0;
+Object.keys(chartData).forEach((measurementType, index) => {
+    const data = chartData[measurementType];
+    const ctx = document.getElementById('chart-' + (index + 1)).getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(point => new Date(point.x).toLocaleDateString('pt-BR')),
+            datasets: [{
+                label: measurementType,
+                data: data.map(point => point.y),
+                borderColor: colors[colorIndex % colors.length],
+                backgroundColor: colors[colorIndex % colors.length] + '20',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+    
+    colorIndex++;
+});
+{% endif %}
+</script>
+{% endblock %}

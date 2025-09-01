@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>{% block title %}EngenPro{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('dashboard.index') }}">
+                <!-- Espaço reservado para sua logo -->
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="navbar-logo me-2" style="height: 40px; width: auto; display: none;" id="navbar-logo">
+                <!-- Fallback icon enquanto não há logo -->
+                <i class="fas fa-hard-hat me-2" id="navbar-icon"></i>
+                <span class="navbar-title">EngenPro</span>
+            </a>
+            
+            {% if session.user_id %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="fas fa-dashboard me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-project-diagram me-1"></i>Projetos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('projects.index') }}">
+                                <i class="fas fa-folder me-1"></i>Projetos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('budget.index') }}">
+                                <i class="fas fa-calculator me-1"></i>Orçamento</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('permits.index') }}">
+                                <i class="fas fa-file-contract me-1"></i>Licenças</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('risks.index') }}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Riscos</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users me-1"></i>Recursos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('suppliers.index') }}">
+                                <i class="fas fa-truck me-1"></i>Fornecedores</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('training.workers') }}">
+                                <i class="fas fa-user-hard-hat me-1"></i>Trabalhadores</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('training.index') }}">
+                                <i class="fas fa-graduation-cap me-1"></i>Treinamentos</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-shield-alt me-1"></i>Segurança
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('safety.index') }}">
+                                <i class="fas fa-exclamation-circle me-1"></i>Incidentes</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('compliance.index') }}">
+                                <i class="fas fa-clipboard-check me-1"></i>Compliance</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-leaf me-1"></i>Sustentabilidade
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('sustainability.index') }}">
+                                <i class="fas fa-smog me-1"></i>Emissões</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('sustainability.materials') }}">
+                                <i class="fas fa-cubes me-1"></i>Materiais</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('field.index') }}">
+                            <i class="fas fa-satellite-dish me-1"></i>Campo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('calculators.index') }}">
+                            <i class="fas fa-calculator me-1"></i>Calculadoras
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reports.index') }}">
+                            <i class="fas fa-chart-bar me-1"></i>Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('notes') }}">
+                            <i class="fas fa-sticky-note me-1"></i>Notas
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if session.subscription_plan == 'pro' or (session.subscription_status == 'trial' and session.trial_end_date) %}
+                    <li class="nav-item me-2">
+                        <a class="nav-link" href="{{ url_for('subscription.status') }}">
+                            {% if session.subscription_plan == 'pro' and session.subscription_status == 'active' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-star"></i> Pro
+                                </span>
+                            {% elif session.subscription_status == 'trial' %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock"></i> Teste
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item me-2">
+                        <a class="nav-link" href="{{ url_for('subscription.plans') }}">
+                            <span class="badge bg-outline-light border">
+                                <i class="fas fa-star"></i> Upgrade Pro
+                            </span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user me-1"></i>{{ session.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('subscription.status') }}">
+                                <i class="fas fa-star me-1"></i>Minha Assinatura</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('subscription.plans') }}">
+                                <i class="fas fa-crown me-1"></i>Ver Planos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('credits') }}">
+                                <i class="fas fa-file-invoice me-1"></i>Créditos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="container my-4 main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                Todos os créditos do sistema a <strong>João Layon</strong>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Navbar fix script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fix dropdown issues
+        const dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                const menu = this.nextElementSibling;
+                if (menu && menu.classList.contains('dropdown-menu')) {
+                    menu.classList.toggle('show');
+                    this.setAttribute('aria-expanded', menu.classList.contains('show'));
+                }
+                
+                // Close other dropdowns
+                const otherMenus = document.querySelectorAll('.dropdown-menu');
+                otherMenus.forEach(otherMenu => {
+                    if (otherMenu !== menu) {
+                        otherMenu.classList.remove('show');
+                        const otherToggle = otherMenu.previousElementSibling;
+                        if (otherToggle) {
+                            otherToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                const menus = document.querySelectorAll('.dropdown-menu');
+                const toggles = document.querySelectorAll('.dropdown-toggle');
+                menus.forEach(menu => menu.classList.remove('show'));
+                toggles.forEach(toggle => toggle.setAttribute('aria-expanded', 'false'));
+            }
+        });
+        
+        // Ensure logout works
+        const logoutLink = document.querySelector('a[href*="auth.logout"]');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Tem certeza que deseja sair?')) {
+                    window.location.href = this.href;
+                }
+            });
+        }
+    });
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

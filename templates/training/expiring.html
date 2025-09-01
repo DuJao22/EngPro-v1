@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Treinamentos Vencendo - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+        Treinamentos Vencendo
+    </h1>
+    <a href="{{ url_for('training.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+{% if expiring_trainings %}
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Atenção!</strong> {{ expiring_trainings|length }} treinamento(s) vencendo nos próximos 30 dias.
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Trabalhador</th>
+                            <th>Treinamento</th>
+                            <th>Data de Conclusão</th>
+                            <th>Data de Vencimento</th>
+                            <th>Status</th>
+                            <th>Certificado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for training in expiring_trainings %}
+                            <tr class="table-warning">
+                                <td>
+                                    <strong>{{ training.worker_name }}</strong>
+                                </td>
+                                <td>{{ training.training_title }}</td>
+                                <td>{{ training.completion_date }}</td>
+                                <td>
+                                    <span class="badge bg-warning">{{ training.expiry_date }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if training.status == 'completed' else 'secondary' }}">
+                                        {{ training.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if training.certificate_path %}
+                                        <a href="{{ url_for('static', filename=training.certificate_path) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-certificate"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('training.assign') }}?worker_id={{ training.worker_id }}&training_id={{ training.training_id }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-redo me-1"></i>
+                                        Renovar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+        <h3 class="text-success">Nenhum treinamento vencendo</h3>
+        <p class="text-muted">Todos os treinamentos estão em dia.</p>
+        <a href="{{ url_for('training.index') }}" class="btn btn-primary">
+            <i class="fas fa-graduation-cap me-2"></i>
+            Ver Treinamentos
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

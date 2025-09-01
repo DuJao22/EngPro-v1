@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Compliance e Documentos - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-file-shield me-2"></i>
+        Compliance e Documentos
+    </h1>
+    <a href="{{ url_for('compliance.new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Novo Documento
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.total_docs }}</h4>
+                <small>Total de Documentos</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.pending_docs }}</h4>
+                <small>Pendentes</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.approved_docs }}</h4>
+                <small>Aprovados</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.expired_docs }}</h4>
+                <small>Expirados</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expiring Documents Alert -->
+{% if expiring_soon %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Atenção!</strong> {{ expiring_soon|length }} documento(s) vencendo nos próximos 30 dias.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">Documentos Vencendo em Breve</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Projeto</th>
+                        <th>Tipo</th>
+                        <th>Vencimento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in expiring_soon %}
+                        <tr>
+                            <td><strong>{{ doc.title }}</strong></td>
+                            <td>{{ doc.project_name or 'N/A' }}</td>
+                            <td>{{ doc.document_type or '-' }}</td>
+                            <td><span class="badge bg-warning">{{ doc.expiry_date }}</span></td>
+                            <td>
+                                <a href="{{ url_for('compliance.edit', id=doc.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if documents %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Projeto</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Emissão</th>
+                            <th>Vencimento</th>
+                            <th>Autoridade</th>
+                            <th>Arquivo</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                            <tr>
+                                <td>
+                                    <strong>{{ doc.title }}</strong>
+                                    {% if doc.notes %}
+                                        <br><small class="text-muted">{{ doc.notes[:50] }}{% if doc.notes|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.project_name or 'N/A' }}</td>
+                                <td>{{ doc.document_type or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if doc.status == 'approved' else 'warning' if doc.status == 'pending' else 'danger' }}">
+                                        {{ doc.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ doc.issue_date or '-' }}</td>
+                                <td>
+                                    {% if doc.expiry_date %}
+                                        {{ doc.expiry_date }}
+                                        {% if doc.expiry_date <= (moment().add(30, 'days').format('YYYY-MM-DD')) %}
+                                            <i class="fas fa-exclamation-triangle text-warning ms-1" title="Vencendo em breve"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.responsible_authority or '-' }}</td>
+                                <td>
+                                    {% if doc.file_path %}
+                                        <a href="{{ url_for('static', filename=doc.file_path) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('compliance.edit', id=doc.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete({{ doc.id }}, '{{ doc.title }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-file-shield fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum documento encontrado</h3>
+        <p class="text-muted">Comece gerenciando documentos de compliance do projeto.</p>
+        <a href="{{ url_for('compliance.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Adicionar Primeiro Documento
+        </a>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o documento <strong id="docTitle"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDelete(docId, docTitle) {
+    document.getElementById('docTitle').textContent = docTitle;
+    document.getElementById('deleteForm').action = '/compliance/' + docId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

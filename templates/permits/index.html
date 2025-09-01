@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Licenças e Alvarás - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-file-contract me-2"></i>
+        Licenças e Alvarás
+    </h1>
+    <a href="{{ url_for('permits.new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Nova Licença
+    </a>
+</div>
+
+<!-- Expiring Permits Alert -->
+{% if expiring_soon %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Atenção!</strong> {{ expiring_soon|length }} licença(s) vencendo nos próximos 30 dias.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+{% if permits %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Projeto</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Emissão</th>
+                            <th>Vencimento</th>
+                            <th>Órgão</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for permit in permits %}
+                            <tr class="{% if permit.expiry_date and permit.expiry_date <= threshold_date %}table-warning{% endif %}">
+                                <td>
+                                    <strong>{{ permit.name }}</strong>
+                                    {% if permit.document_path %}
+                                        <i class="fas fa-paperclip text-muted ms-1" title="Possui documento"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ permit.project_name or 'N/A' }}</td>
+                                <td>{{ permit.type or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if permit.status == 'approved' else 'warning' if permit.status == 'pending' else 'danger' }}">
+                                        {{ permit.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ permit.issue_date or '-' }}</td>
+                                <td>
+                                    {% if permit.expiry_date %}
+                                        {{ permit.expiry_date }}
+                                        {% if permit.expiry_date <= threshold_date %}
+                                            <i class="fas fa-exclamation-triangle text-warning ms-1" title="Vencendo em breve"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ permit.issuing_authority or '-' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('permits.edit', id=permit.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if permit.document_path %}
+                                            <a href="{{ url_for('uploaded_file', filename=permit.document_path.split('/')[-1]) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete({{ permit.id }}, '{{ permit.name }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-file-contract fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhuma licença encontrada</h3>
+        <p class="text-muted">Comece registrando suas licenças e alvarás.</p>
+        <a href="{{ url_for('permits.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Adicionar Primeira Licença
+        </a>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir a licença <strong id="permitName"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDelete(permitId, permitName) {
+    document.getElementById('permitName').textContent = permitName;
+    document.getElementById('deleteForm').action = '/permits/' + permitId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

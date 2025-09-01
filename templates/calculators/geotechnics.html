@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Geotecnia e Fundações - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-mountain text-primary"></i> Geotecnia e Fundações</h1>
+                <a href="{{ url_for('calculators.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Capacidade de Carga do Solo -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-weight"></i> Capacidade de Carga do Solo</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="bearing_capacity">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Coesão (kPa)</label>
+                                            <input type="number" class="form-control" name="cohesion" step="0.1" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Ângulo de Atrito (°)</label>
+                                            <input type="number" class="form-control" name="friction_angle" step="0.1" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Peso Específico (kN/m³)</label>
+                                            <input type="number" class="form-control" name="unit_weight" value="18" step="0.1" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Profundidade da Fundação (m)</label>
+                                            <input type="number" class="form-control" name="depth" value="1.0" step="0.1" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Largura da Fundação (m)</label>
+                                            <input type="number" class="form-control" name="width" value="1.0" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capacidade de Estaca -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-hammer"></i> Capacidade de Estaca</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="pile_capacity">
+                                <div class="mb-3">
+                                    <label class="form-label">Diâmetro da Estaca (m)</label>
+                                    <input type="number" class="form-control" name="diameter" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Comprimento da Estaca (m)</label>
+                                    <input type="number" class="form-control" name="length" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Resistência de Ponta (kPa)</label>
+                                    <input type="number" class="form-control" name="tip_resistance" step="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Resistência Lateral (kPa)</label>
+                                    <input type="number" class="form-control" name="shaft_resistance" step="1" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if results %}
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-chart-bar"></i> Resultados dos Cálculos</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if results.bearing_capacity %}
+                            <div class="alert alert-primary">
+                                <h6><strong>Capacidade de Carga do Solo</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Coesão:</strong> {{ "%.1f"|format(results.bearing_capacity.cohesion) }} kPa</p>
+                                        <p><strong>Ângulo de atrito:</strong> {{ "%.1f"|format(results.bearing_capacity.friction_angle) }}°</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Capacidade última:</strong> {{ "%.1f"|format(results.bearing_capacity.ultimate_capacity) }} kPa</p>
+                                        <p><strong>Capacidade admissível:</strong> <span class="text-danger fw-bold">{{ "%.1f"|format(results.bearing_capacity.allowable_capacity) }} kPa</span></p>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Fator de segurança: {{ results.bearing_capacity.safety_factor }} (Fórmulas de Terzaghi)</small>
+                            </div>
+                            {% endif %}
+
+                            {% if results.pile_capacity %}
+                            <div class="alert alert-success">
+                                <h6><strong>Capacidade de Estaca</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Diâmetro:</strong> {{ "%.2f"|format(results.pile_capacity.diameter) }} m</p>
+                                        <p><strong>Comprimento:</strong> {{ "%.1f"|format(results.pile_capacity.length) }} m</p>
+                                        <p><strong>Resistência de ponta:</strong> {{ "%.1f"|format(results.pile_capacity.tip_capacity) }} kN</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Resistência lateral:</strong> {{ "%.1f"|format(results.pile_capacity.shaft_capacity) }} kN</p>
+                                        <p><strong>Capacidade total:</strong> {{ "%.1f"|format(results.pile_capacity.total_capacity) }} kN</p>
+                                        <p><strong>Capacidade admissível:</strong> <span class="text-danger fw-bold">{{ "%.1f"|format(results.pile_capacity.allowable_capacity) }} kN</span></p>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Fator de segurança: 2.0</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="alert alert-warning mt-4">
+                <h6><i class="fas fa-exclamation-triangle"></i> Observações Importantes</h6>
+                <ul class="mb-0">
+                    <li>Os cálculos são baseados em fórmulas clássicas e devem ser validados com ensaios geotécnicos</li>
+                    <li>Para projetos de fundações, consulte as normas NBR 6122 e NBR 6484</li>
+                    <li>Sempre considere as condições específicas do solo e carregamentos dinâmicos</li>
+                    <li>Os resultados são estimativas e não substituem estudos geotécnicos detalhados</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

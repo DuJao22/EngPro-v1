@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Medição - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-plus-circle me-2"></i>
+        Nova Medição
+    </h1>
+    <a href="{{ url_for('field.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project_id" class="form-label">Projeto</label>
+                            <select class="form-select" id="project_id" name="project_id">
+                                <option value="">Selecione um projeto</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="measurement_type" class="form-label">Tipo de Medição *</label>
+                            <input type="text" class="form-control" id="measurement_type" name="measurement_type" 
+                                   placeholder="Ex: temperatura, umidade, vibração" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="value" class="form-label">Valor *</label>
+                            <input type="number" step="0.01" class="form-control" id="value" name="value" 
+                                   placeholder="25.5" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="unit" class="form-label">Unidade</label>
+                            <input type="text" class="form-control" id="unit" name="unit" 
+                                   placeholder="Ex: °C, %, m/s">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="location" class="form-label">Localização</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="Ex: Pavimento 2, Setor A">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="device_id" class="form-label">ID do Dispositivo</label>
+                            <input type="text" class="form-control" id="device_id" name="device_id" 
+                                   placeholder="Ex: sensor001, drone_alpha">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Observações sobre a medição..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('field.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

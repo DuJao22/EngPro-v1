@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Atribuir Treinamento - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-user-plus me-2"></i>
+        Atribuir Treinamento
+    </h1>
+    <a href="{{ url_for('training.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="worker_id" class="form-label">Trabalhador *</label>
+                            <select class="form-select" id="worker_id" name="worker_id" required>
+                                <option value="">Selecione um trabalhador</option>
+                                {% for worker in workers %}
+                                    <option value="{{ worker.id }}" {% if request.args.get('worker_id') == worker.id|string %}selected{% endif %}>
+                                        {{ worker.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="training_id" class="form-label">Treinamento *</label>
+                            <select class="form-select" id="training_id" name="training_id" required>
+                                <option value="">Selecione um treinamento</option>
+                                {% for training in trainings %}
+                                    <option value="{{ training.id }}" data-validity="{{ training.validity_months }}" 
+                                            {% if request.args.get('training_id') == training.id|string %}selected{% endif %}>
+                                        {{ training.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="completion_date" class="form-label">Data de Conclusão *</label>
+                            <input type="date" class="form-control" id="completion_date" name="completion_date" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="expiry_date" class="form-label">Data de Vencimento</label>
+                            <input type="date" class="form-control" id="expiry_date" name="expiry_date" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="certificate" class="form-label">Certificado</label>
+                        <input type="file" class="form-control" id="certificate" name="certificate" 
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <div class="form-text">Formatos aceitos: PDF, DOC, DOCX, JPG, PNG</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('training.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Atribuir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const completionDateInput = document.getElementById('completion_date');
+    const trainingSelect = document.getElementById('training_id');
+    const expiryDateInput = document.getElementById('expiry_date');
+    
+    function calculateExpiryDate() {
+        const completionDate = completionDateInput.value;
+        const selectedOption = trainingSelect.options[trainingSelect.selectedIndex];
+        const validityMonths = selectedOption ? parseInt(selectedOption.getAttribute('data-validity')) : 12;
+        
+        if (completionDate && validityMonths) {
+            const completion = new Date(completionDate);
+            completion.setMonth(completion.getMonth() + validityMonths);
+            expiryDateInput.value = completion.toISOString().split('T')[0];
+        }
+    }
+    
+    completionDateInput.addEventListener('change', calculateExpiryDate);
+    trainingSelect.addEventListener('change', calculateExpiryDate);
+});
+</script>
+{% endblock %}

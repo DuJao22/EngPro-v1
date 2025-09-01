@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Status da Assinatura{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2><i class="fas fa-user-circle"></i> Status da Assinatura</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Informações da Conta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Plano Atual:</h6>
+                            {% if user.subscription_plan == 'pro' %}
+                                <span class="badge badge-success badge-lg">
+                                    <i class="fas fa-star"></i> Pro
+                                </span>
+                            {% elif user.subscription_plan == 'free_trial' %}
+                                <span class="badge badge-warning badge-lg">
+                                    <i class="fas fa-clock"></i> Teste Gratuito
+                                </span>
+                            {% else %}
+                                <span class="badge badge-secondary badge-lg">
+                                    <i class="fas fa-user"></i> Gratuito
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Status:</h6>
+                            {% if user.subscription_status == 'active' %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle"></i> Ativo
+                                </span>
+                            {% elif user.subscription_status == 'trial' %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-hourglass-half"></i> Em Teste
+                                </span>
+                            {% else %}
+                                <span class="badge badge-secondary">
+                                    <i class="fas fa-pause-circle"></i> Inativo
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    {% if user.subscription_status == 'trial' and trial_days >= 0 %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        <strong>Teste Gratuito:</strong> 
+                        {% if trial_days > 0 %}
+                            Você tem {{ trial_days }} dia{{ 's' if trial_days != 1 else '' }} restante{{ 's' if trial_days != 1 else '' }} do seu teste gratuito.
+                        {% else %}
+                            Seu teste gratuito expirou hoje.
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.subscription_status == 'active' and user.subscription_end_date %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-calendar-check"></i>
+                        <strong>Próxima Renovação:</strong> {{ user.subscription_end_date.strftime('%d/%m/%Y') }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Ações</h5>
+                </div>
+                <div class="card-body">
+                    {% if not is_pro %}
+                    <a href="{{ url_for('subscription.plans') }}" class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-star"></i> Ver Planos
+                    </a>
+                    {% endif %}
+                    
+                    {% if trial_days <= 0 and not is_pro %}
+                    <a href="{{ url_for('subscription.checkout') }}" class="btn btn-success btn-block mb-2">
+                        <i class="fas fa-credit-card"></i> Assinar Pro
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6><i class="fas fa-star"></i> Recursos Pro</h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <p class="mb-2">
+                            {% if is_pro %}
+                                <i class="fas fa-check text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                            Projetos ilimitados
+                        </p>
+                        <p class="mb-2">
+                            {% if is_pro %}
+                                <i class="fas fa-check text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                            Relatórios avançados
+                        </p>
+                        <p class="mb-2">
+                            {% if is_pro %}
+                                <i class="fas fa-check text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                            Gestão de equipe
+                        </p>
+                        <p class="mb-0">
+                            {% if is_pro %}
+                                <i class="fas fa-check text-success"></i>
+                            {% else %}
+                                <i class="fas fa-times text-danger"></i>
+                            {% endif %}
+                            Integração IoT
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

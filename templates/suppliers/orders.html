@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos de Compra - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-shopping-cart me-2"></i>
+        Pedidos de Compra
+    </h1>
+    <div>
+        <a href="{{ url_for('suppliers.index') }}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-truck me-2"></i>
+            Fornecedores
+        </a>
+        <a href="{{ url_for('suppliers.new_order') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Novo Pedido
+        </a>
+    </div>
+</div>
+
+{% if orders %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Projeto</th>
+                            <th>Fornecedor</th>
+                            <th>Data</th>
+                            <th>Entrega Prevista</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td><strong>{{ order.order_number }}</strong></td>
+                                <td>{{ order.project_name or 'N/A' }}</td>
+                                <td>{{ order.supplier_name }}</td>
+                                <td>{{ order.order_date or '-' }}</td>
+                                <td>{{ order.expected_delivery or '-' }}</td>
+                                <td class="fw-bold">R$ {{ "{:,.2f}".format(order.total_amount or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' if order.status == 'pending' else 'info' }}">
+                                        {{ order.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" onclick="viewOrder('{{ order.order_number }}', '{{ order.items or '[]' }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum pedido encontrado</h3>
+        <p class="text-muted">Comece criando pedidos de compra para seus fornecedores.</p>
+        <a href="{{ url_for('suppliers.new_order') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Criar Primeiro Pedido
+        </a>
+    </div>
+{% endif %}
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Pedido <span id="orderNumber"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="orderItems"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function viewOrder(orderNumber, items) {
+    document.getElementById('orderNumber').textContent = orderNumber;
+    
+    let itemsHtml = '<p class="text-muted">Itens do pedido:</p>';
+    try {
+        const parsedItems = JSON.parse(items);
+        if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+            itemsHtml += '<ul class="list-group">';
+            parsedItems.forEach(item => {
+                itemsHtml += `<li class="list-group-item">${item.description || 'Item'} - Qtd: ${item.quantity || 1}</li>`;
+            });
+            itemsHtml += '</ul>';
+        } else {
+            itemsHtml += '<p class="text-muted">Nenhum item especificado.</p>';
+        }
+    } catch (e) {
+        itemsHtml += '<p class="text-muted">Itens não disponíveis.</p>';
+    }
+    
+    document.getElementById('orderItems').innerHTML = itemsHtml;
+    new bootstrap.Modal(document.getElementById('orderModal')).show();
+}
+</script>
+{% endblock %}

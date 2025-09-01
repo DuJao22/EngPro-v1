@@ -1,0 +1,129 @@
+CivilSaaS
+
+Você é um engenheiro de software sênior atuando em um SaaS para engenheiros civis.
+O sistema já possui um starter kit em Flask + SQLite3 (sem SQLAlchemy), com os seguintes módulos implementados:
+
+Projetos
+
+Tarefas & Prazos
+
+Orçamento
+
+Licenças/Alvarás
+
+Segurança (Incidentes)
+
+Notas rápidas
+
+Dashboard simples com KPIs
+
+Página de Créditos (todos os créditos a João Layon)
+
+🎯 Objetivo
+
+Ampliar o sistema para cobrir todas as dores de engenheiros civis:
+prazos, custos, burocracia, mão de obra, sustentabilidade, segurança, tecnologia e responsabilidade técnica.
+
+🛠️ Regras obrigatórias
+
+Usar apenas Flask e sqlite3 da biblioteca padrão (sem SQLAlchemy).
+
+Queries devem ser feitas com sqlite3 + row_factory para acesso tipo dicionário.
+
+Atualizar schema.sql sempre que novas tabelas forem necessárias.
+
+Templates Jinja devem manter o mesmo estilo visual já existente (cards, tabelas, formulários simples e responsivos).
+
+Sempre incluir validações básicas e mensagens flash amigáveis.
+
+Todos os uploads devem ir para uploads/ com validação de extensão/tamanho.
+
+O rodapé e a página de créditos devem permanecer com: "Todos os créditos do sistema a João Layon".
+
+Código limpo, comentado e organizado.
+
+📦 Features a implementar (incrementalmente)
+
+Gestão de Fornecedores & Compras
+
+Tabelas suppliers (nome, CNPJ/ID, contato) e purchase_orders (project_id, supplier_id, itens).
+
+KPIs de lead time e variação de preço.
+
+Treinamentos & Capacitação
+
+Tabela workers (nome, função).
+
+Tabela trainings (tema, validade).
+
+Relacionamento worker_trainings (m:n com datas).
+
+Alertas para treinamentos vencendo.
+
+Sustentabilidade & Materiais
+
+Tabela materials (categoria, emissões/kg).
+
+Tabela material_logs (project_id, material_id, quantidade).
+
+Relatório de emissões por projeto.
+
+Riscos & Responsabilidades
+
+Matriz risco × probabilidade × impacto por projeto.
+
+Responsáveis e plano de mitigação.
+
+Compliance/Documentos
+
+Upload de PDFs (alvarás, ARTs, laudos).
+
+Status e vencimento com lembretes.
+
+Integrações de Campo
+
+Endpoint JSON para receber medições (ex.: drones, IoT).
+
+Persistência e exibição em séries temporais.
+
+Relatórios
+
+Rota /reports com filtros por datas.
+
+Exportação HTML/PDF simples: cronograma, custos por categoria, incidentes, licenças.
+
+Auditoria Simples
+
+Tabela audit_log registrando mudanças em entidades principais (quem, quando, o quê).
+
+✅ Entregáveis esperados
+
+Novas rotas Flask (GET/POST).
+
+Atualizações no schema.sql.
+
+Templates .html consistentes.
+
+Relatórios básicos em HTML (e opção PDF se possível).
+
+Testes mínimos (pytest) para pelo menos 3 fluxos principais:
+
+criar projeto
+
+adicionar item de orçamento
+
+registrar licença
+
+🔮 Roadmap sugerido
+
+Autenticação simples (login com hash de senha).
+
+Organização por Blueprints (projects, budget, permits, safety, suppliers, training).
+
+Relatórios com filtros + exportação.
+
+Alertas (tarefas, licenças e treinamentos vencendo).
+
+Logs de auditoria para rastreabilidade.
+
+⚠️ Lembre-se: em todas as páginas/templates/rotas, os créditos devem aparecer como “Todos os créditos do sistema a João Layon”.

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Licenças - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-file-contract me-2"></i>
+        Relatório de Licenças
+    </h1>
+    <div>
+        <a href="{{ url_for('reports.export', report_type='permits') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-download me-2"></i>
+            Exportar
+        </a>
+        <a href="{{ url_for('reports.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>
+            Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Status Statistics -->
+<div class="row mb-4">
+    {% for status in status_stats %}
+        <div class="col-md-3 mb-3">
+            <div class="card bg-{{ 'success' if status.status == 'approved' else 'warning' if status.status == 'pending' else 'danger' }} text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0">{{ status.count }}</h4>
+                    <small>{{ status.status.title() }}</small>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Type Statistics -->
+{% if type_stats %}
+<div class="row mb-4">
+    {% for type_stat in type_stats %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="text-primary">{{ type_stat.count }}</h5>
+                    <small class="text-muted">{{ type_stat.type }}</small>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Expiring Permits Alert -->
+{% if expiring_permits %}
+<div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Atenção!</strong> {{ expiring_permits|length }} licença(s) vencendo nos próximos 30 dias.
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">Licenças Vencendo em Breve</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Projeto</th>
+                        <th>Tipo</th>
+                        <th>Vencimento</th>
+                        <th>Órgão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for permit in expiring_permits %}
+                        <tr>
+                            <td><strong>{{ permit.permit_name }}</strong></td>
+                            <td>{{ permit.project_name or 'N/A' }}</td>
+                            <td>{{ permit.type or '-' }}</td>
+                            <td><span class="badge bg-warning">{{ permit.expiry_date }}</span></td>
+                            <td>{{ permit.issuing_authority or '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">Data Início</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" 
+                       value="{{ filters.start_date or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">Data Fim</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" 
+                       value="{{ filters.end_date or '' }}">
+            </div>
+            <div class="col-md-2">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Todos</option>
+                    <option value="pending" {% if filters.status == 'pending' %}selected{% endif %}>Pendente</option>
+                    <option value="approved" {% if filters.status == 'approved' %}selected{% endif %}>Aprovado</option>
+                    <option value="denied" {% if filters.status == 'denied' %}selected{% endif %}>Negado</option>
+                    <option value="expired" {% if filters.status == 'expired' %}selected{% endif %}>Expirado</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="type" class="form-label">Tipo</label>
+                <input type="text" class="form-control" id="type" name="type" 
+                       value="{{ filters.type or '' }}" placeholder="Ex: Alvará">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if permits %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Projeto</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Emissão</th>
+                            <th>Vencimento</th>
+                            <th>Órgão Emissor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for permit in permits %}
+                            <tr>
+                                <td><strong>{{ permit.name }}</strong></td>
+                                <td>{{ permit.project_name or 'N/A' }}</td>
+                                <td>{{ permit.type or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if permit.status == 'approved' else 'warning' if permit.status == 'pending' else 'danger' }}">
+                                        {{ permit.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ permit.issue_date or '-' }}</td>
+                                <td>{{ permit.expiry_date or '-' }}</td>
+                                <td>{{ permit.issuing_authority or '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-file-contract fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhuma licença encontrada</h3>
+        <p class="text-muted">Tente ajustar os filtros ou adicionar uma nova licença.</p>
+        <a href="{{ url_for('permits.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Nova Licença
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

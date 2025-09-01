@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}{% if risk %}Editar{% else %}Novo{% endif %} Risco - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {% if risk %}Editar Risco{% else %}Novo Risco{% endif %}
+    </h1>
+    <a href="{{ url_for('risks.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project_id" class="form-label">Projeto</label>
+                            <select class="form-select" id="project_id" name="project_id">
+                                <option value="">Selecione um projeto</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}" 
+                                            {% if risk and risk.project_id == project.id %}selected{% endif %}>
+                                        {{ project.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">Título do Risco *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   value="{{ risk.title if risk else '' }}" 
+                                   placeholder="Ex: Atraso na entrega de materiais" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrição Detalhada</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  placeholder="Descreva o risco em detalhes...">{{ risk.description if risk else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Categoria</label>
+                            <input type="text" class="form-control" id="category" name="category" 
+                                   value="{{ risk.category if risk else '' }}" 
+                                   placeholder="Ex: Técnico, Financeiro, Operacional">
+                        </div>
+                        
+                        {% if risk %}
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="identified" {% if risk.status == 'identified' %}selected{% endif %}>Identificado</option>
+                                <option value="monitoring" {% if risk.status == 'monitoring' %}selected{% endif %}>Monitorando</option>
+                                <option value="mitigated" {% if risk.status == 'mitigated' %}selected{% endif %}>Mitigado</option>
+                                <option value="occurred" {% if risk.status == 'occurred' %}selected{% endif %}>Ocorreu</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="probability" class="form-label">Probabilidade (1-5)</label>
+                            <select class="form-select" id="probability" name="probability">
+                                {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if risk and risk.probability == i %}selected{% endif %}>
+                                        {{ i }} - {{ ['Muito Baixa', 'Baixa', 'Média', 'Alta', 'Muito Alta'][i-1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="impact" class="form-label">Impacto (1-5)</label>
+                            <select class="form-select" id="impact" name="impact">
+                                {% for i in range(1, 6) %}
+                                    <option value="{{ i }}" {% if risk and risk.impact == i %}selected{% endif %}>
+                                        {{ i }} - {{ ['Muito Baixo', 'Baixo', 'Médio', 'Alto', 'Muito Alto'][i-1] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="risk_score" class="form-label">Score de Risco</label>
+                            <input type="text" class="form-control" id="risk_score" readonly>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="responsible_person" class="form-label">Responsável</label>
+                            <input type="text" class="form-control" id="responsible_person" name="responsible_person" 
+                                   value="{{ risk.responsible_person if risk else '' }}" 
+                                   placeholder="Nome do responsável">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="mitigation_plan" class="form-label">Plano de Mitigação</label>
+                        <textarea class="form-control" id="mitigation_plan" name="mitigation_plan" rows="3" 
+                                  placeholder="Descreva as ações para mitigar este risco...">{{ risk.mitigation_plan if risk else '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('risks.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const probabilitySelect = document.getElementById('probability');
+    const impactSelect = document.getElementById('impact');
+    const riskScoreInput = document.getElementById('risk_score');
+    
+    function calculateRiskScore() {
+        const probability = parseInt(probabilitySelect.value) || 1;
+        const impact = parseInt(impactSelect.value) || 1;
+        const score = probability * impact;
+        
+        let level = 'Baixo';
+        let color = 'success';
+        
+        if (score >= 15) {
+            level = 'Alto';
+            color = 'danger';
+        } else if (score >= 6) {
+            level = 'Médio';
+            color = 'warning';
+        }
+        
+        riskScoreInput.value = `${score} (${level})`;
+        riskScoreInput.className = `form-control text-${color} fw-bold`;
+    }
+    
+    probabilitySelect.addEventListener('change', calculateRiskScore);
+    impactSelect.addEventListener('change', calculateRiskScore);
+    
+    // Calculate initial score
+    calculateRiskScore();
+});
+</script>
+{% endblock %}

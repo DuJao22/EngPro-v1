@@ -1,0 +1,464 @@
+Estruturas e Resistência dos Materiais
+
+Tensão Normal (σ)
+
+𝜎
+=
+𝐹
+𝐴
+σ=
+A
+F
+	​
+
+
+Onde:
+
+𝐹
+F = força (N)
+
+𝐴
+A = área da seção (m²)
+
+Uso: Determina a tensão que um material sofre quando comprimido ou tracionado.
+
+Deformação (ε)
+
+𝜀
+=
+Δ
+𝐿
+𝐿
+0
+ε=
+L
+0
+	​
+
+ΔL
+	​
+
+
+Δ
+𝐿
+ΔL = variação do comprimento
+
+𝐿
+0
+L
+0
+	​
+
+ = comprimento inicial
+
+Mede a deformação relativa de um material.
+
+Lei de Hooke
+
+𝜎
+=
+𝐸
+⋅
+𝜀
+σ=E⋅ε
+
+𝐸
+E = módulo de elasticidade
+
+Relaciona tensão e deformação em materiais elásticos.
+
+Momento Fletor
+
+𝑀
+=
+𝐹
+⋅
+𝑑
+M=F⋅d
+
+𝐹
+F = força aplicada
+
+𝑑
+d = distância da força ao ponto de análise
+
+Base para cálculo de flexão em vigas.
+
+Inércia da Seção (I)
+
+I = \frac{b \cdot h^3}{12} \] (para seção retangular) - \(b\) = base - \(h\) = altura - Mede a resistência da seção à **flexão**. --- 6. **Tensão de Flexão (σf)** \[ \sigma_f = \frac{M \cdot y}{I}
+
+𝑦
+y = distância ao centroide
+
+Estima a tensão máxima em uma viga solicitada por momento fletor.
+
+Cisalhamento (τ)
+
+𝜏
+=
+𝑉
+𝐴
+τ=
+A
+V
+	​
+
+
+𝑉
+V = força cortante
+
+Importante em análise de vigas e conexões metálicas.
+
+🔹 Concreto e Argamassas
+
+Resistência Característica do Concreto (fck)
+
+𝑓
+𝑐
+𝑘
+=
+𝐹
+𝑟
+𝑢
+𝑝
+𝑡
+𝑢
+𝑟
+𝑎
+𝐴
+f
+ck
+	​
+
+=
+A
+F
+ruptura
+	​
+
+	​
+
+
+Resistência à compressão axial do concreto.
+
+Base de dimensionamento de estruturas de concreto.
+
+Dosagem de Argamassa (Traço em Volume)
+
+1
+:
+𝑎
+:
+𝑏
+1:a:b
+
+1
+1 = cimento
+
+𝑎
+a = areia
+
+𝑏
+b = brita
+
+Relação usada para calcular proporção de materiais.
+
+Lei de Abrams (Resistência × Água/Cimento)
+
+𝑓
+𝑐
+=
+𝐾
+⋅
+(
+𝑎
+𝑐
+)
+−
+𝑛
+f
+c
+	​
+
+=K⋅(
+c
+a
+	​
+
+)
+−n
+
+Relação água/cimento influencia diretamente a resistência do concreto.
+
+🔹 Hidráulica e Hidrologia
+
+Vazão (Q)
+
+𝑄
+=
+𝐴
+⋅
+𝑣
+Q=A⋅v
+
+𝐴
+A = área da seção do conduto
+
+𝑣
+v = velocidade da água
+
+Muito usada em drenagem e abastecimento de água.
+
+Equação da Continuidade
+
+𝐴
+1
+⋅
+𝑣
+1
+=
+𝐴
+2
+⋅
+𝑣
+2
+A
+1
+	​
+
+⋅v
+1
+	​
+
+=A
+2
+	​
+
+⋅v
+2
+	​
+
+
+Base de análise de escoamentos em tubulações.
+
+Equação de Bernoulli
+
+𝑝
+𝛾
++
+𝑣
+2
+2
+𝑔
++
+𝑧
+=
+constante
+γ
+p
+	​
+
++
+2g
+v
+2
+	​
+
++z=constante
+
+Relaciona pressão, velocidade e altura de fluido.
+
+Fundamental para bombeamento e hidráulica.
+
+Número de Reynolds (Re)
+
+𝑅
+𝑒
+=
+𝜌
+⋅
+𝑣
+⋅
+𝐷
+𝜇
+Re=
+μ
+ρ⋅v⋅D
+	​
+
+
+Define se o escoamento é laminar ou turbulento.
+
+Fórmula de Manning (escoamento em canais)
+
+𝑄
+=
+1
+𝑛
+⋅
+𝐴
+⋅
+𝑅
+2
+/
+3
+⋅
+𝑆
+1
+/
+2
+Q=
+n
+1
+	​
+
+⋅A⋅R
+2/3
+⋅S
+1/2
+
+𝑛
+n = coeficiente de rugosidade
+
+𝑅
+R = raio hidráulico
+
+𝑆
+S = declividade
+
+Muito usada em drenagem pluvial.
+
+🔹 Geotecnia e Fundações
+
+Pressão Efetiva (σ’)
+
+𝜎
+′
+=
+𝜎
+−
+𝑢
+σ
+′
+=σ−u
+
+𝜎
+σ = tensão total
+
+𝑢
+u = pressão neutra (poros)
+
+Essencial em análise de solos saturados.
+
+Capacidade de Carga (Terzaghi)
+
+𝑞
+𝑢
+𝑙
+𝑡
+=
+𝑐
+⋅
+𝑁
+𝑐
++
+𝛾
+⋅
+𝐷
+𝑓
+⋅
+𝑁
+𝑞
++
+0
+,
+5
+⋅
+𝛾
+⋅
+𝐵
+⋅
+𝑁
+𝛾
+q
+ult
+	​
+
+=c⋅N
+c
+	​
+
++γ⋅D
+f
+	​
+
+⋅N
+q
+	​
+
++0,5⋅γ⋅B⋅N
+γ
+	​
+
+
+Estima a carga que o solo suporta antes da ruptura.
+
+Assentamento Elástico
+
+𝑆
+=
+𝑞
+⋅
+𝐵
+(
+1
+−
+𝜈
+2
+)
+𝐸
+S=
+E
+q⋅B(1−ν
+2
+)
+	​
+
+
+Cálculo de recalque em fundações rasas.
+
+🔹 Construção e Materiais
+
+Peso Específico (γ)
+
+𝛾
+=
+𝑃
+𝑉
+γ=
+V
+P
+	​
+
+
+𝑃
+P = peso
+
+𝑉
+V = volume
+
+Usado em solos, concretos e agregados.
+
+Volume de Concreto
+
+𝑉
+=
+𝑏
+⋅
+ℎ
+⋅
+𝑙
+V=b⋅h⋅l
+
+Fórmula básica para calcular volume de vigas, lajes e blocos.

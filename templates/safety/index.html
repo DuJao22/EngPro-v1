@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Segurança e Incidentes - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-shield-alt me-2"></i>
+        Segurança e Incidentes
+    </h1>
+    <a href="{{ url_for('safety.new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Reportar Incidente
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.total_incidents }}</h4>
+                <small>Total de Incidentes</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.open_incidents }}</h4>
+                <small>Incidentes Abertos</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.high_severity }}</h4>
+                <small>Alta Severidade</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.this_month }}</h4>
+                <small>Este Mês</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if incidents %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Projeto</th>
+                            <th>Severidade</th>
+                            <th>Data</th>
+                            <th>Local</th>
+                            <th>Reportado por</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for incident in incidents %}
+                            <tr>
+                                <td>
+                                    <strong>{{ incident.title }}</strong>
+                                    {% if incident.description %}
+                                        <br><small class="text-muted">{{ incident.description[:50] }}{% if incident.description|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ incident.project_name or 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if incident.severity == 'high' else 'warning' if incident.severity == 'medium' else 'success' }}">
+                                        {{ incident.severity.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ incident.date_occurred or '-' }}</td>
+                                <td>{{ incident.location or '-' }}</td>
+                                <td>{{ incident.reported_by or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if incident.status == 'closed' else 'warning' if incident.status == 'investigating' else 'danger' }}">
+                                        {{ incident.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('safety.edit', id=incident.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete({{ incident.id }}, '{{ incident.title }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shield-alt fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum incidente registrado</h3>
+        <p class="text-muted">Mantenha o registro de incidentes de segurança para melhorar a prevenção.</p>
+        <a href="{{ url_for('safety.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Reportar Primeiro Incidente
+        </a>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o incidente <strong id="incidentTitle"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDelete(incidentId, incidentTitle) {
+    document.getElementById('incidentTitle').textContent = incidentTitle;
+    document.getElementById('deleteForm').action = '/safety/' + incidentId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

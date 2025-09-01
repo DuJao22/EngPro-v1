@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Trabalhadores - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-users me-2"></i>
+        Trabalhadores
+    </h1>
+    <div>
+        <a href="{{ url_for('training.index') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-graduation-cap me-2"></i>
+            Treinamentos
+        </a>
+        <a href="{{ url_for('training.new_worker') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Novo Trabalhador
+        </a>
+    </div>
+</div>
+
+{% if workers %}
+    <div class="row">
+        {% for worker in workers %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">{{ worker.name }}</h5>
+                                {% if worker.role %}
+                                    <small class="text-muted">{{ worker.role }}</small>
+                                {% endif %}
+                            </div>
+                            <span class="badge bg-{{ 'success' if worker.status == 'active' else 'secondary' }}">
+                                {{ worker.status.title() }}
+                            </span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            {% if worker.email %}
+                                <small class="text-muted d-block"><i class="fas fa-envelope me-1"></i>{{ worker.email }}</small>
+                            {% endif %}
+                            {% if worker.phone %}
+                                <small class="text-muted d-block"><i class="fas fa-phone me-1"></i>{{ worker.phone }}</small>
+                            {% endif %}
+                            {% if worker.hire_date %}
+                                <small class="text-muted d-block"><i class="fas fa-calendar me-1"></i>Desde: {{ worker.hire_date }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row text-center mt-3">
+                            <div class="col-6">
+                                <small class="text-muted">Treinamentos</small>
+                                <div class="fw-bold text-primary">{{ worker.total_trainings or 0 }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Vencendo</small>
+                                <div class="fw-bold {% if worker.expiring_soon %}text-warning{% else %}text-success{% endif %}">
+                                    {{ worker.expiring_soon or 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('training.edit_worker', worker_id=worker.id) }}" class="btn btn-outline-primary" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('training.assign') }}?worker_id={{ worker.id }}" class="btn btn-outline-success" title="Atribuir Treinamento">
+                                <i class="fas fa-graduation-cap"></i>
+                            </a>
+                            <a href="{{ url_for('training.worker_details', worker_id=worker.id) }}" class="btn btn-outline-info" title="Ver Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum trabalhador encontrado</h3>
+        <p class="text-muted">Comece cadastrando sua equipe de trabalho.</p>
+        <a href="{{ url_for('training.new_worker') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Cadastrar Primeiro Trabalhador
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

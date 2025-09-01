@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Custos e Orçamentos - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-calculator text-primary"></i> Custos e Orçamentos</h1>
+                <a href="{{ url_for('calculators.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Cálculo de BDI -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-percentage"></i> Cálculo de BDI</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="bdi_calculation">
+                                <div class="mb-3">
+                                    <label class="form-label">Custo Direto (R$)</label>
+                                    <input type="number" class="form-control" name="direct_cost" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Custos Indiretos (%)</label>
+                                    <input type="number" class="form-control" name="indirect_cost_percent" value="15" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Lucro (%)</label>
+                                    <input type="number" class="form-control" name="profit_percent" value="8" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Impostos (%)</label>
+                                    <input type="number" class="form-control" name="tax_percent" value="15" step="0.1" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Calcular BDI</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custo Unitário -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-coins"></i> Custo Unitário</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="unit_cost">
+                                <div class="mb-3">
+                                    <label class="form-label">Custo de Materiais (R$)</label>
+                                    <input type="number" class="form-control" name="material_cost" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Custo de Mão de Obra (R$)</label>
+                                    <input type="number" class="form-control" name="labor_cost" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Custo de Equipamentos (R$)</label>
+                                    <input type="number" class="form-control" name="equipment_cost" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Produtividade (unid/dia)</label>
+                                    <input type="number" class="form-control" name="productivity" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cronograma Físico-Financeiro -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h5><i class="fas fa-chart-line"></i> Cronograma Físico-Financeiro</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="schedule_cost">
+                                <div class="mb-3">
+                                    <label class="form-label">Valor Total da Obra (R$)</label>
+                                    <input type="number" class="form-control" name="total_value" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Duração (meses)</label>
+                                    <input type="number" class="form-control" name="duration_months" value="12" min="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Curva</label>
+                                    <select class="form-control" name="curve_type" required>
+                                        <option value="linear">Linear</option>
+                                        <option value="s_curve">Curva S</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">Gerar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if results %}
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-chart-pie"></i> Resultados Financeiros</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if results.bdi_calculation %}
+                            <div class="alert alert-primary">
+                                <h6><strong>Cálculo de BDI</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Custo Direto:</strong> R$ {{ "{:,.2f}".format(results.bdi_calculation.direct_cost).replace(',', '.').replace('.', ',', 1) }}</p>
+                                        <p><strong>Custos Indiretos:</strong> {{ "%.1f"|format(results.bdi_calculation.indirect_cost_percent) }}%</p>
+                                        <p><strong>Lucro:</strong> {{ "%.1f"|format(results.bdi_calculation.profit_percent) }}%</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Impostos:</strong> {{ "%.1f"|format(results.bdi_calculation.tax_percent) }}%</p>
+                                        <p><strong>BDI:</strong> <span class="text-primary fw-bold">{{ "%.2f"|format(results.bdi_calculation.bdi_percent) }}%</span></p>
+                                        <p><strong>Preço de Venda:</strong> <span class="text-success fw-bold">R$ {{ "{:,.2f}".format(results.bdi_calculation.selling_price).replace(',', '.').replace('.', ',', 1) }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if results.unit_cost %}
+                            <div class="alert alert-success">
+                                <h6><strong>Custo Unitário do Serviço</strong></h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Materiais:</strong> R$ {{ "%.2f"|format(results.unit_cost.material_cost) }}</p>
+                                        <p><strong>Mão de obra:</strong> R$ {{ "%.2f"|format(results.unit_cost.labor_cost) }}</p>
+                                        <p><strong>Equipamentos:</strong> R$ {{ "%.2f"|format(results.unit_cost.equipment_cost) }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Produtividade:</strong> {{ "%.2f"|format(results.unit_cost.productivity) }} unid/dia</p>
+                                        <p><strong>Custo Unitário Total:</strong> <span class="text-success fw-bold">R$ {{ "%.2f"|format(results.unit_cost.total_unit_cost) }}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if results.schedule_cost %}
+                            <div class="alert alert-warning">
+                                <h6><strong>Cronograma Físico-Financeiro</strong></h6>
+                                <p><strong>Valor Total:</strong> R$ {{ "{:,.2f}".format(results.schedule_cost.total_value).replace(',', '.').replace('.', ',', 1) }}</p>
+                                <p><strong>Duração:</strong> {{ results.schedule_cost.duration_months }} meses</p>
+                                
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Mês</th>
+                                                <th>% Mensal</th>
+                                                <th>Valor Mensal</th>
+                                                <th>% Acumulado</th>
+                                                <th>Valor Acumulado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for month in results.schedule_cost.schedule %}
+                                            <tr>
+                                                <td>{{ month.month }}</td>
+                                                <td>{{ "%.1f"|format(month.monthly_percent) }}%</td>
+                                                <td>R$ {{ "{:,.2f}".format(month.monthly_value).replace(',', '.').replace('.', ',', 1) }}</td>
+                                                <td>{{ "%.1f"|format(month.accumulated_percent) }}%</td>
+                                                <td>R$ {{ "{:,.2f}".format(month.accumulated_value).replace(',', '.').replace('.', ',', 1) }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Dicas e Referências -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6><i class="fas fa-lightbulb"></i> Dicas para BDI</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0 small">
+                                <li><strong>Custos Indiretos:</strong> 12-20% (administração, seguro, etc.)</li>
+                                <li><strong>Lucro:</strong> 6-12% (dependendo do risco e porte)</li>
+                                <li><strong>Impostos:</strong> 15-20% (PIS, COFINS, CSLL, IR)</li>
+                                <li><strong>BDI Típico:</strong> 20-35% para obras públicas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6><i class="fas fa-clock"></i> Tipos de Cronograma</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0 small">
+                                <li><strong>Linear:</strong> Distribuição uniforme ao longo do tempo</li>
+                                <li><strong>Curva S:</strong> Início lento, meio acelerado, final desacelerado</li>
+                                <li><strong>Uso:</strong> Curva S é mais realista para obras</li>
+                                <li><strong>Planejamento:</strong> Considere mobilização e desmobilização</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-info-circle"></i> Informações Importantes</h6>
+                <ul class="mb-0">
+                    <li>Os cálculos são baseados em práticas de mercado e devem ser adaptados para cada projeto</li>
+                    <li>Consulte sempre a Lei 8.666/93 para obras públicas e editais específicos</li>
+                    <li>O BDI varia conforme o tipo, porte e complexidade da obra</li>
+                    <li>Considere sempre contingências e riscos específicos do projeto</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}{% if document %}Editar{% else %}Novo{% endif %} Documento - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-file-shield me-2"></i>
+        {% if document %}Editar Documento{% else %}Novo Documento{% endif %}
+    </h1>
+    <a href="{{ url_for('compliance.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project_id" class="form-label">Projeto</label>
+                            <select class="form-select" id="project_id" name="project_id">
+                                <option value="">Selecione um projeto</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}" 
+                                            {% if document and document.project_id == project.id %}selected{% endif %}>
+                                        {{ project.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">Título do Documento *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   value="{{ document.title if document else '' }}" 
+                                   placeholder="Ex: ART - Anotação de Responsabilidade Técnica" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="document_type" class="form-label">Tipo de Documento</label>
+                            <input type="text" class="form-control" id="document_type" name="document_type" 
+                                   value="{{ document.document_type if document else '' }}" 
+                                   placeholder="Ex: ART, Laudo, Certificado">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="pending" {% if document and document.status == 'pending' %}selected{% endif %}>Pendente</option>
+                                <option value="approved" {% if document and document.status == 'approved' %}selected{% endif %}>Aprovado</option>
+                                <option value="rejected" {% if document and document.status == 'rejected' %}selected{% endif %}>Rejeitado</option>
+                                <option value="expired" {% if document and document.status == 'expired' %}selected{% endif %}>Expirado</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="issue_date" class="form-label">Data de Emissão</label>
+                            <input type="date" class="form-control" id="issue_date" name="issue_date" 
+                                   value="{{ document.issue_date if document else '' }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="expiry_date" class="form-label">Data de Vencimento</label>
+                            <input type="date" class="form-control" id="expiry_date" name="expiry_date" 
+                                   value="{{ document.expiry_date if document else '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="responsible_authority" class="form-label">Autoridade Responsável</label>
+                        <input type="text" class="form-control" id="responsible_authority" name="responsible_authority" 
+                               value="{{ document.responsible_authority if document else '' }}" 
+                               placeholder="Ex: CREA-SP, IBAMA, Prefeitura Municipal">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="document_file" class="form-label">Arquivo do Documento</label>
+                        <input type="file" class="form-control" id="document_file" name="document_file" 
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <div class="form-text">Formatos aceitos: PDF, DOC, DOCX, JPG, PNG</div>
+                        {% if document and document.file_path %}
+                            <div class="mt-2">
+                                <small class="text-muted">Arquivo atual: </small>
+                                <a href="{{ url_for('static', filename=document.file_path) }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file me-1"></i>
+                                    {{ document.file_path.split('/')[-1] }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Observações sobre o documento...">{{ document.notes if document else '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('compliance.index') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

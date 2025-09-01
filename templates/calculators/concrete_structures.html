@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Estruturas de Concreto - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-building text-primary"></i> Estruturas de Concreto</h1>
+                <a href="{{ url_for('calculators.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Momento Fletor em Viga -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-minus"></i> Momento Fletor em Viga</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="beam_moment">
+                                <div class="mb-3">
+                                    <label class="form-label">Carga Distribuída (kN/m)</label>
+                                    <input type="number" class="form-control" name="load" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Vão da Viga (m)</label>
+                                    <input type="number" class="form-control" name="length" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carga em Pilar -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="fas fa-bars"></i> Carga Máxima em Pilar</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="column_load">
+                                <div class="mb-3">
+                                    <label class="form-label">fck do Concreto (MPa)</label>
+                                    <input type="number" class="form-control" name="fck" step="0.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Área da Seção (cm²)</label>
+                                    <input type="number" class="form-control" name="area" step="0.01" required>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Espessura de Laje -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h5><i class="fas fa-square"></i> Espessura Mínima de Laje</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                <input type="hidden" name="calc_type" value="slab_thickness">
+                                <div class="mb-3">
+                                    <label class="form-label">Vão da Laje (m)</label>
+                                    <input type="number" class="form-control" name="span" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Laje</label>
+                                    <select class="form-control" name="slab_type" required>
+                                        <option value="solid">Laje Maciça</option>
+                                        <option value="ribbed">Laje Nervurada</option>
+                                        <option value="other">Outros Tipos</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-warning w-100">Calcular</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if results %}
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="fas fa-chart-line"></i> Resultados dos Cálculos</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if results.beam_moment %}
+                            <div class="alert alert-primary">
+                                <h6><strong>Momento Fletor em Viga</strong></h6>
+                                <p><strong>Carga:</strong> {{ "%.2f"|format(results.beam_moment.load) }} kN/m</p>
+                                <p><strong>Vão:</strong> {{ "%.2f"|format(results.beam_moment.length) }} m</p>
+                                <p><strong>Momento Máximo:</strong> <span class="text-danger fw-bold">{{ "%.2f"|format(results.beam_moment.max_moment) }} kN.m</span></p>
+                                <small class="text-muted">Para viga simplesmente apoiada com carga uniformemente distribuída</small>
+                            </div>
+                            {% endif %}
+
+                            {% if results.column_load %}
+                            <div class="alert alert-success">
+                                <h6><strong>Carga Máxima em Pilar</strong></h6>
+                                <p><strong>fck:</strong> {{ "%.1f"|format(results.column_load.fck) }} MPa</p>
+                                <p><strong>Área:</strong> {{ "%.2f"|format(results.column_load.area) }} cm²</p>
+                                <p><strong>Carga Máxima:</strong> <span class="text-danger fw-bold">{{ "%.2f"|format(results.column_load.max_load) }} kN</span></p>
+                                <small class="text-muted">Cálculo aproximado sem considerar armadura</small>
+                            </div>
+                            {% endif %}
+
+                            {% if results.slab_thickness %}
+                            <div class="alert alert-warning">
+                                <h6><strong>Espessura Mínima de Laje</strong></h6>
+                                <p><strong>Vão:</strong> {{ "%.2f"|format(results.slab_thickness.span) }} m</p>
+                                <p><strong>Tipo:</strong> {{ results.slab_thickness.slab_type }}</p>
+                                <p><strong>Espessura Mínima:</strong> <span class="text-danger fw-bold">{{ "%.1f"|format(results.slab_thickness.min_thickness) }} cm</span></p>
+                                <small class="text-muted">Baseado em critérios de flecha</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="alert alert-info mt-4">
+                <h6><i class="fas fa-exclamation-triangle"></i> Importante</h6>
+                <p class="mb-0">
+                    Os cálculos apresentados são simplificados e devem ser utilizados apenas para estimativas preliminares.
+                    Para projetos executivos, é necessário realizar análises mais detalhadas considerando todas as solicitações
+                    e verificações normativas.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Orçamento - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-dollar-sign me-2"></i>
+        Orçamento
+    </h1>
+    <a href="{{ url_for('budget.new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>
+        Novo Item
+    </a>
+</div>
+
+<!-- Summary Cards -->
+{% if totals %}
+<div class="row mb-4">
+    {% for total in totals %}
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ total.category or 'Sem categoria' }}</h5>
+                    <h4 class="text-primary">R$ {{ "{:,.2f}".format(total.total).replace(',', '.').replace('.', ',', 1) }}</h4>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if budget_items %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Projeto</th>
+                            <th>Categoria</th>
+                            <th>Descrição</th>
+                            <th>Qtd</th>
+                            <th>Valor Unit.</th>
+                            <th>Total</th>
+                            <th>Fornecedor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in budget_items %}
+                            <tr>
+                                <td>{{ item.project_name or 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ item.category }}</span>
+                                </td>
+                                <td>{{ item.description or '-' }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>R$ {{ "{:,.2f}".format(item.unit_cost).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td class="fw-bold">R$ {{ "{:,.2f}".format(item.total_cost).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>{{ item.supplier_name or 'N/A' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('budget.edit', id=item.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete({{ item.id }}, '{{ item.description or item.category }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-dollar-sign fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum item de orçamento encontrado</h3>
+        <p class="text-muted">Comece adicionando itens ao seu orçamento.</p>
+        <a href="{{ url_for('budget.new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Adicionar Primeiro Item
+        </a>
+    </div>
+{% endif %}
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o item <strong id="itemName"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function confirmDelete(itemId, itemName) {
+    document.getElementById('itemName').textContent = itemName;
+    document.getElementById('deleteForm').action = '/budget/' + itemId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

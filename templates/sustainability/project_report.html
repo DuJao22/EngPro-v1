@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Sustentabilidade - {{ project.name }} - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-leaf me-2"></i>
+        Relatório de Sustentabilidade
+    </h1>
+    <a href="{{ url_for('sustainability.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Voltar
+    </a>
+</div>
+
+<!-- Project Info -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">{{ project.name }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                {% if project.description %}
+                    <p class="mb-2">{{ project.description }}</p>
+                {% endif %}
+                <small class="text-muted">
+                    Período: {{ project.start_date or 'N/A' }} - {{ project.end_date or 'Em andamento' }}
+                </small>
+            </div>
+            <div class="col-md-4 text-end">
+                <h3 class="text-danger">{{ "{:,.1f}".format(total_emissions).replace(',', '.') }} kg CO₂</h3>
+                <small class="text-muted">Emissões totais</small>
+                <br>
+                <h4 class="text-primary">R$ {{ "{:,.2f}".format(total_cost).replace(',', '.').replace('.', ',', 1) }}</h4>
+                <small class="text-muted">Custo total de materiais</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Summary -->
+{% if category_totals %}
+<div class="row mb-4">
+    {% for category, totals in category_totals.items() %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6 class="card-title">{{ category }}</h6>
+                    <h5 class="text-danger">{{ "{:,.1f}".format(totals.emissions).replace(',', '.') }} kg CO₂</h5>
+                    <small class="text-muted">R$ {{ "{:,.2f}".format(totals.cost).replace(',', '.').replace('.', ',', 1) }}</small>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Material Usage Details -->
+{% if material_usage %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Detalhamento por Material</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Material</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Emissões (kg CO₂)</th>
+                            <th>Custo (R$)</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usage in material_usage %}
+                            <tr>
+                                <td>{{ usage.date_used or usage.created_at[:10] }}</td>
+                                <td><strong>{{ usage.material_name }}</strong></td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ usage.category or 'N/A' }}</span>
+                                </td>
+                                <td>{{ usage.quantity }}</td>
+                                <td class="text-danger fw-bold">{{ "{:,.2f}".format(usage.total_emissions).replace(',', '.') }}</td>
+                                <td>R$ {{ "{:,.2f}".format(usage.total_cost or 0).replace(',', '.').replace('.', ',', 1) }}</td>
+                                <td>{{ usage.notes or '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-leaf fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhum material registrado</h3>
+        <p class="text-muted">Este projeto ainda não possui registros de uso de materiais.</p>
+        <a href="{{ url_for('sustainability.log_usage') }}?project_id={{ project.id }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Registrar Material
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

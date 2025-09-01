@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}CivilSaaS - Sistema para Engenheiros Civis{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <div class="container">
+                <h1 class="display-4">
+                    <i class="fas fa-hard-hat me-3"></i>
+                    Bem-vindo ao CivilSaaS
+                </h1>
+                <p class="lead">
+                    Sistema completo para gestão de projetos de engenharia civil
+                </p>
+                <hr class="my-4">
+                <p>
+                    Gerencie projetos, orçamentos, prazos, fornecedores, segurança e muito mais em uma única plataforma.
+                </p>
+                <a class="btn btn-light btn-lg" href="{{ url_for('auth.login') }}" role="button">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Fazer Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-project-diagram fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Gestão de Projetos</h5>
+                <p class="card-text">
+                    Controle completo de projetos, tarefas, prazos e orçamentos.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Segurança</h5>
+                <p class="card-text">
+                    Registro e controle de incidentes de segurança no canteiro de obras.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-leaf fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Sustentabilidade</h5>
+                <p class="card-text">
+                    Monitoramento de emissões de carbono e uso sustentável de materiais.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Recursos Humanos</h5>
+                <p class="card-text">
+                    Gestão de trabalhadores, treinamentos e capacitações.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-file-contract fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Compliance</h5>
+                <p class="card-text">
+                    Controle de licenças, alvarás e documentos de compliance.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Relatórios</h5>
+                <p class="card-text">
+                    Relatórios detalhados e análises para tomada de decisão.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

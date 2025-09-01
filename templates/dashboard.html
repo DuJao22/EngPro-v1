@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-dashboard me-2"></i>
+        Dashboard
+    </h1>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4">
+    <div class="col-md-2 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ kpis.total_projects }}</h4>
+                        <small>Projetos</small>
+                    </div>
+                    <i class="fas fa-project-diagram fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ kpis.active_projects }}</h4>
+                        <small>Ativos</small>
+                    </div>
+                    <i class="fas fa-play fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ kpis.pending_tasks }}</h4>
+                        <small>Tarefas</small>
+                    </div>
+                    <i class="fas fa-tasks fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ kpis.overdue_tasks }}</h4>
+                        <small>Atrasadas</small>
+                    </div>
+                    <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ kpis.open_incidents }}</h4>
+                        <small>Incidentes</small>
+                    </div>
+                    <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-2 mb-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">R$ {{ "{:,.0f}".format(kpis.total_budget).replace(',', '.') }}</h4>
+                        <small>Orçamento</small>
+                    </div>
+                    <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Projects -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    Projetos Recentes
+                </h5>
+                <a href="{{ url_for('projects.index') }}" class="btn btn-sm btn-primary">Ver Todos</a>
+            </div>
+            <div class="card-body">
+                {% if recent_projects %}
+                    <div class="list-group list-group-flush">
+                        {% for project in recent_projects %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ project.name }}</h6>
+                                    <small class="text-muted">{{ project.status.title() }}</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">{{ project.created_at[:10] }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhum projeto encontrado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Tarefas Recentes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_tasks %}
+                    <div class="list-group list-group-flush">
+                        {% for task in recent_tasks %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ task.title }}</h6>
+                                        <small class="text-muted">{{ task.project_name or 'Sem projeto' }}</small>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if task.status == 'completed' else 'warning' }} rounded-pill">
+                                        {{ task.status.title() }}
+                                    </span>
+                                </div>
+                                {% if task.due_date %}
+                                    <small class="text-muted">Prazo: {{ task.due_date }}</small>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhuma tarefa encontrada.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Deadlines -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-exclamation me-2"></i>
+                    Próximos Prazos
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_deadlines %}
+                    <div class="list-group list-group-flush">
+                        {% for deadline in upcoming_deadlines %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ deadline.title }}</h6>
+                                        <small class="text-muted">{{ deadline.project_name or 'Sem projeto' }}</small>
+                                    </div>
+                                    <span class="badge bg-warning rounded-pill">{{ deadline.due_date }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhum prazo próximo.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Expiring Permits -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Licenças Vencendo
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if expiring_permits %}
+                    <div class="list-group list-group-flush">
+                        {% for permit in expiring_permits %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ permit.permit_name }}</h6>
+                                        <small class="text-muted">{{ permit.project_name or 'Sem projeto' }}</small>
+                                    </div>
+                                    <span class="badge bg-danger rounded-pill">{{ permit.expiry_date }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhuma licença vencendo.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

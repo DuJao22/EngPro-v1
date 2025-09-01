@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Medições de Campo - CivilSaaS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-satellite-dish me-2"></i>
+        Medições de Campo
+    </h1>
+    <div>
+        <a href="{{ url_for('field.charts') }}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-chart-line me-2"></i>
+            Gráficos
+        </a>
+        <a href="{{ url_for('field.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Nova Medição
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.total_measurements }}</h4>
+                <small>Total de Medições</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.today_measurements }}</h4>
+                <small>Hoje</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">{{ stats.active_devices }}</h4>
+                <small>Dispositivos Ativos</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Measurement Types Filter -->
+{% if measurement_types %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">Filtrar por Tipo de Medição</h6>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm filter-btn active" data-type="all">
+                Todos
+            </button>
+            {% for measurement_type in measurement_types %}
+                <button type="button" class="btn btn-outline-secondary btn-sm filter-btn" data-type="{{ measurement_type.measurement_type }}">
+                    {{ measurement_type.measurement_type }}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if measurements %}
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0">Medições Recentes</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="measurementsTable">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Projeto</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th>Unidade</th>
+                            <th>Local</th>
+                            <th>Dispositivo</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for measurement in measurements %}
+                            <tr data-type="{{ measurement.measurement_type }}">
+                                <td>{{ measurement.timestamp[:16].replace('T', ' ') }}</td>
+                                <td>{{ measurement.project_name or 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-primary">{{ measurement.measurement_type }}</span>
+                                </td>
+                                <td class="fw-bold">{{ measurement.value }}</td>
+                                <td>{{ measurement.unit or '-' }}</td>
+                                <td>{{ measurement.location or '-' }}</td>
+                                <td>{{ measurement.device_id or '-' }}</td>
+                                <td>{{ measurement.notes or '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-satellite-dish fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">Nenhuma medição encontrada</h3>
+        <p class="text-muted">Comece registrando medições de campo ou configure dispositivos IoT.</p>
+        <a href="{{ url_for('field.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Primeira Medição
+        </a>
+    </div>
+{% endif %}
+
+<!-- API Info Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-code me-2"></i>
+            API para Dispositivos IoT
+        </h6>
+    </div>
+    <div class="card-body">
+        <p class="mb-2">Para enviar medições via API, use o endpoint:</p>
+        <code>POST {{ request.url_root }}field/api/record</code>
+        
+        <h6 class="mt-3">Exemplo de payload JSON:</h6>
+        <pre class="bg-light p-3 rounded"><code>{
+  "project_id": 1,
+  "measurement_type": "temperatura",
+  "value": 25.5,
+  "unit": "°C",
+  "location": "Setor A",
+  "device_id": "sensor001",
+  "notes": "Medição automática"
+}</code></pre>
+        
+        <small class="text-muted">
+            <strong>Campos obrigatórios:</strong> measurement_type, value<br>
+            <strong>Campos opcionais:</strong> project_id, unit, location, device_id, notes
+        </small>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const tableRows = document.querySelectorAll('#measurementsTable tbody tr');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filterType = this.getAttribute('data-type');
+            
+            tableRows.forEach(row => {
+                if (filterType === 'all') {
+                    row.style.display = '';
+                } else {
+                    const rowType = row.getAttribute('data-type');
+                    row.style.display = rowType === filterType ? '' : 'none';
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
